@@ -20,6 +20,23 @@ services:
     hostname: postgres
     restart: always
 
+  minio:
+    image: minio/minio
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+    command:
+      - "server"
+      - "--address"
+      - "${MINIO_HOST}:${MINIO_PORT}"
+      - "/data"
+    ports:
+      - "${MINIO_PORT}:${MINIO_PORT}"
+    volumes:
+      - minio:/data
+    hostname: minio
+    restart: always
+
   api:
     build: ./api
     depends_on:
@@ -56,3 +73,4 @@ services:
 
 volumes:
   postgres:
+  minio:
