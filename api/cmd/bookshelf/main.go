@@ -1,7 +1,10 @@
 package main
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -14,10 +17,6 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/julienschmidt/httprouter"
 	_ "github.com/lib/pq"
-)
-
-const (
-	SessionSecret = "session_secret"
 )
 
 func init() {
@@ -66,7 +65,15 @@ func createGormDB() *gorm.DB {
 }
 
 func createSessionStore() sessions.Store {
-	store := sessions.NewCookieStore([]byte(SessionSecret))
+	generateSessionID := func() string {
+		b := make([]byte, 32)
+		if _, err := io.ReadFull(rand.Reader, b); err != nil {
+			return ""
+		}
+		return base64.URLEncoding.EncodeToString(b)
+	}
+	sessionSecret := generateSessionID()
+	store := sessions.NewCookieStore([]byte(sessionSecret))
 	return store
 }
 
