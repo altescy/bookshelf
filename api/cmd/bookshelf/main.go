@@ -22,10 +22,7 @@ import (
 func init() {
 	var err error
 
-	tz := os.Getenv("TZ")
-	if tz == "" {
-		tz = "Asia/Tokyo"
-	}
+	tz := getEnv("TZ", "Asia/Tokyo")
 
 	loc, err := time.LoadLocation(tz)
 	if err != nil {
