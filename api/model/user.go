@@ -10,7 +10,7 @@ import (
 
 type User struct {
 	gorm.Model
-	Name     string `json:"name" gorm:"unique_index"`
+	Name     string `gorm:"unique_index"`
 	Password string `json:"-"`
 }
 
