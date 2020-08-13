@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,9 +8,16 @@ import (
 	"time"
 
 	"github.com/altescy/bookshelf/api/controller"
+	"github.com/altescy/bookshelf/api/model"
 	gctx "github.com/gorilla/context"
+	"github.com/gorilla/sessions"
+	"github.com/jinzhu/gorm"
 	"github.com/julienschmidt/httprouter"
 	_ "github.com/lib/pq"
+)
+
+const (
+	SessionSecret = "session_secret"
 )
 
 func init() {
@@ -36,9 +42,8 @@ func getEnv(key, def string) string {
 	return def
 }
 
-func main() {
+func createGormDB() *gorm.DB {
 	var (
-		port   = getEnv("PORT", "8080")
 		dbhost = getEnv("DB_HOST", "127.0.0.1")
 		dbport = getEnv("DB_PORT", "5432")
 		dbuser = getEnv("DB_USER", "user")
@@ -51,17 +56,56 @@ func main() {
 		dbusrpass += ":" + dbpass
 	}
 
-	dsn := fmt.Sprintf(`%s@tcp(%s:%s)/%s?parseTime=true&loc=Local&charset=utf8mb4`, dbusrpass, dbhost, dbport, dbname)
-	db, err := sql.Open("postgres", dsn)
+	dsn := fmt.Sprintf(`postgres://%s@%s:%s/%s?sslmode=disable`, dbusrpass, dbhost, dbport, dbname)
+	db, err := gorm.Open("postgres", dsn)
 	if err != nil {
-		log.Fatalf("mysql connect failed. err: %s", err)
+		log.Fatalf("postgres connect failed. err: %s", err)
 	}
+
+	return db
+}
+
+func createSessionStore() sessions.Store {
+	store := sessions.NewCookieStore([]byte(SessionSecret))
+	return store
+}
+
+func autoMigrate(db *gorm.DB) {
+	if err := model.AutoMigrate(db); err != nil {
+		log.Fatalf("migration failed: %v", err)
+	}
+}
+
+func createUser(db *gorm.DB) {
+	var (
+		username = getEnv("USERNAME", "user")
+		password = getEnv("PASSWORD", "password")
+	)
+	if err := model.UserSignUp(db, username, password); err != nil {
+		if err != model.ErrUserConflict {
+			log.Fatalf("failed to sign up user: %v", err)
+		}
+	}
+}
+
+func main() {
+	port := getEnv("PORT", "8080")
+
+	db := createGormDB()
 	defer db.Close()
 
-	h := controller.NewHandler(db)
+	autoMigrate(db)
+	createUser(db)
+
+	store := createSessionStore()
+
+	h := controller.NewHandler(db, store)
 
 	router := httprouter.New()
 	router.GET("/", h.Index)
+	router.POST("/signin", h.Signin)
+	router.POST("/signout", h.Signout)
+	router.GET("/user", h.GetUser)
 
 	addr := ":" + port
 	log.Printf("[INFO] start server %s", addr)

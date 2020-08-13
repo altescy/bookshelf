@@ -1,23 +1,39 @@
 package controller
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 
+	"github.com/altescy/bookshelf/api/model"
+	"github.com/gorilla/sessions"
+	"github.com/jinzhu/gorm"
 	"github.com/julienschmidt/httprouter"
-	"github.com/pkg/errors"
+)
+
+type key int
+
+const (
+	keyUserID key = iota
+)
+
+const (
+	SessionName = "bookshelf_session"
 )
 
 type Handler struct {
-	db *sql.DB
+	db    *gorm.DB
+	store sessions.Store
 }
 
-func NewHandler(db *sql.DB) *Handler {
+func NewHandler(db *gorm.DB, store sessions.Store) *Handler {
 	return &Handler{
-		db: db,
+		db:    db,
+		store: store,
 	}
 }
 
@@ -25,17 +41,50 @@ func (h *Handler) CommonMiddleware(f http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			if err := r.ParseForm(); err != nil {
-				h.handleError(w, err, 400)
+				h.handleError(w, err, http.StatusBadRequest)
 				return
 			}
 		}
-		f.ServeHTTP(w, r)
+		session, err := h.store.Get(r, SessionName)
+		if err != nil {
+			h.handleError(w, err, http.StatusInternalServerError)
+			return
+		}
+		if _userID, ok := session.Values["user_id"]; ok {
+			userID := _userID.(uint)
+			user, err := model.GetUserByID(h.db, userID)
+			switch {
+			case err == sql.ErrNoRows:
+				session.Values["user_id"] = 0
+				session.Options = &sessions.Options{MaxAge: -1}
+				if err = session.Save(r, w); err != nil {
+					h.handleError(w, err, http.StatusInternalServerError)
+					return
+				}
+				h.handleError(w, errors.New("session disconnected"), http.StatusNotFound)
+				return
+			case err != nil:
+				h.handleError(w, err, http.StatusInternalServerError)
+				return
+			}
+			ctx := context.WithValue(r.Context(), keyUserID, user.ID)
+			f.ServeHTTP(w, r.WithContext(ctx))
+		} else {
+			f.ServeHTTP(w, r)
+		}
 	})
 }
 
+func (h *Handler) userByRequest(r *http.Request) (*model.User, error) {
+	v := r.Context().Value(keyUserID)
+	if id, ok := v.(uint); ok {
+		return model.GetUserByID(h.db, id)
+	}
+	return nil, errors.New("Not authenticated")
+}
+
 func (h *Handler) handleSuccess(w http.ResponseWriter, data interface{}) {
-	// DEV: enableCors(&w)
-	w.WriteHeader(200)
+	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	if err := json.NewEncoder(w).Encode(data); err != nil {
 		log.Printf("[WARN] write response json failed. %s", err)
@@ -43,7 +92,6 @@ func (h *Handler) handleSuccess(w http.ResponseWriter, data interface{}) {
 }
 
 func (h *Handler) handleError(w http.ResponseWriter, err error, code int) {
-	// DEV: enableCors(&w)
 	w.WriteHeader(code)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("X-Content-Type-Options", "nosniff")
@@ -55,26 +103,6 @@ func (h *Handler) handleError(w http.ResponseWriter, err error, code int) {
 	if err := json.NewEncoder(w).Encode(data); err != nil {
 		log.Printf("[WARN] write error response json failed. %s", err)
 	}
-}
-
-func (h *Handler) txScope(f func(*sql.Tx) error) (err error) {
-	var tx *sql.Tx
-	tx, err = h.db.Begin()
-	if err != nil {
-		return errors.Wrap(err, "begin transaction failed")
-	}
-	defer func() {
-		if e := recover(); e != nil {
-			tx.Rollback()
-			err = errors.Errorf("panic in transaction: %s", e)
-		} else if err != nil {
-			tx.Rollback()
-		} else {
-			err = tx.Commit()
-		}
-	}()
-	err = f(tx)
-	return
 }
 
 func (h *Handler) Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
