@@ -15,12 +15,14 @@ const (
 )
 
 type Handler struct {
-	db *gorm.DB
+	db         *gorm.DB
+	enableCors bool
 }
 
-func NewHandler(db *gorm.DB) *Handler {
+func NewHandler(db *gorm.DB, enableCors bool) *Handler {
 	return &Handler{
-		db: db,
+		db:         db,
+		enableCors: enableCors,
 	}
 }
 
@@ -31,6 +33,9 @@ func (h *Handler) CommonMiddleware(f http.Handler) http.Handler {
 				h.handleError(w, err, http.StatusBadRequest)
 				return
 			}
+		}
+		if h.enableCors {
+			enableCors(&w)
 		}
 		f.ServeHTTP(w, r)
 	})
@@ -56,4 +61,8 @@ func (h *Handler) handleError(w http.ResponseWriter, err error, code int) {
 	if err := json.NewEncoder(w).Encode(data); err != nil {
 		log.Printf("[WARN] write error response json failed. %s", err)
 	}
+}
+
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 }

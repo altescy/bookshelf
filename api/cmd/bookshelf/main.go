@@ -63,14 +63,20 @@ func autoMigrate(db *gorm.DB) {
 }
 
 func main() {
-	port := getEnv("PORT", "8080")
+	var (
+		port       = getEnv("PORT", "8080")
+		enableCors = getEnv("ENABLE_CORS", "")
+	)
 
 	db := createGormDB()
 	defer db.Close()
 
 	autoMigrate(db)
 
-	h := controller.NewHandler(db)
+	isEnableCors := enableCors != ""
+	log.Printf("[INFO] enable CORS: %v", isEnableCors)
+
+	h := controller.NewHandler(db, isEnableCors)
 
 	router := httprouter.New()
 	router.POST("/book", h.AddBook)
