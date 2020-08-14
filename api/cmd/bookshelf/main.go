@@ -1,10 +1,7 @@
 package main
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -13,7 +10,6 @@ import (
 	"github.com/altescy/bookshelf/api/controller"
 	"github.com/altescy/bookshelf/api/model"
 	gctx "github.com/gorilla/context"
-	"github.com/gorilla/sessions"
 	"github.com/jinzhu/gorm"
 	"github.com/julienschmidt/httprouter"
 	_ "github.com/lib/pq"
@@ -61,34 +57,9 @@ func createGormDB() *gorm.DB {
 	return db
 }
 
-func createSessionStore() sessions.Store {
-	generateSessionID := func() string {
-		b := make([]byte, 32)
-		if _, err := io.ReadFull(rand.Reader, b); err != nil {
-			return ""
-		}
-		return base64.URLEncoding.EncodeToString(b)
-	}
-	sessionSecret := generateSessionID()
-	store := sessions.NewCookieStore([]byte(sessionSecret))
-	return store
-}
-
 func autoMigrate(db *gorm.DB) {
 	if err := model.AutoMigrate(db); err != nil {
 		log.Fatalf("migration failed: %v", err)
-	}
-}
-
-func createUser(db *gorm.DB) {
-	var (
-		username = getEnv("USERNAME", "user")
-		password = getEnv("PASSWORD", "password")
-	)
-	if err := model.UserSignUp(db, username, password); err != nil {
-		if err != model.ErrUserConflict {
-			log.Fatalf("failed to sign up user: %v", err)
-		}
 	}
 }
 
@@ -99,17 +70,11 @@ func main() {
 	defer db.Close()
 
 	autoMigrate(db)
-	createUser(db)
 
-	store := createSessionStore()
-
-	h := controller.NewHandler(db, store)
+	h := controller.NewHandler(db)
 
 	router := httprouter.New()
 	router.GET("/", h.Index)
-	router.POST("/signin", h.Signin)
-	router.POST("/signout", h.Signout)
-	router.GET("/user", h.GetUser)
 
 	addr := ":" + port
 	log.Printf("[INFO] start server %s", addr)

@@ -1,16 +1,11 @@
 package controller
 
 import (
-	"context"
-	"database/sql"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
 
-	"github.com/altescy/bookshelf/api/model"
-	"github.com/gorilla/sessions"
 	"github.com/jinzhu/gorm"
 	"github.com/julienschmidt/httprouter"
 )
@@ -21,19 +16,13 @@ const (
 	keyUserID key = iota
 )
 
-const (
-	SessionName = "bookshelf_session"
-)
-
 type Handler struct {
-	db    *gorm.DB
-	store sessions.Store
+	db *gorm.DB
 }
 
-func NewHandler(db *gorm.DB, store sessions.Store) *Handler {
+func NewHandler(db *gorm.DB) *Handler {
 	return &Handler{
-		db:    db,
-		store: store,
+		db: db,
 	}
 }
 
@@ -45,42 +34,8 @@ func (h *Handler) CommonMiddleware(f http.Handler) http.Handler {
 				return
 			}
 		}
-		session, err := h.store.Get(r, SessionName)
-		if err != nil {
-			h.handleError(w, err, http.StatusInternalServerError)
-			return
-		}
-		if _userID, ok := session.Values["user_id"]; ok {
-			userID := _userID.(uint)
-			user, err := model.GetUserByID(h.db, userID)
-			switch {
-			case err == sql.ErrNoRows:
-				session.Values["user_id"] = 0
-				session.Options = &sessions.Options{MaxAge: -1}
-				if err = session.Save(r, w); err != nil {
-					h.handleError(w, err, http.StatusInternalServerError)
-					return
-				}
-				h.handleError(w, errors.New("session disconnected"), http.StatusNotFound)
-				return
-			case err != nil:
-				h.handleError(w, err, http.StatusInternalServerError)
-				return
-			}
-			ctx := context.WithValue(r.Context(), keyUserID, user.ID)
-			f.ServeHTTP(w, r.WithContext(ctx))
-		} else {
-			f.ServeHTTP(w, r)
-		}
+		f.ServeHTTP(w, r)
 	})
-}
-
-func (h *Handler) userByRequest(r *http.Request) (*model.User, error) {
-	v := r.Context().Value(keyUserID)
-	if id, ok := v.(uint); ok {
-		return model.GetUserByID(h.db, id)
-	}
-	return nil, errors.New("Not authenticated")
 }
 
 func (h *Handler) handleSuccess(w http.ResponseWriter, data interface{}) {
@@ -107,8 +62,4 @@ func (h *Handler) handleError(w http.ResponseWriter, err error, code int) {
 
 func (h *Handler) Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	fmt.Fprintf(w, "Hello, world!")
-}
-
-func enableCors(w *http.ResponseWriter) {
-	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 }
