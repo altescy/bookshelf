@@ -70,7 +70,7 @@ services:
         - "${NGINX_PORT}:${API_PORT}"
     volumes:
         - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-        - ./frontend/build:/public
+        - ./frontend/dist:/public
     restart: always
 
 volumes:
