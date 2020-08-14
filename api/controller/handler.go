@@ -2,12 +2,10 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/jinzhu/gorm"
-	"github.com/julienschmidt/httprouter"
 )
 
 type key int
@@ -58,8 +56,4 @@ func (h *Handler) handleError(w http.ResponseWriter, err error, code int) {
 	if err := json.NewEncoder(w).Encode(data); err != nil {
 		log.Printf("[WARN] write error response json failed. %s", err)
 	}
-}
-
-func (h *Handler) Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	fmt.Fprintf(w, "Hello, world!")
 }

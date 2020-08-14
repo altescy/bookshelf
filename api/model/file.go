@@ -1,17 +1,8 @@
 package model
 
-import (
-	"github.com/jinzhu/gorm"
-)
-
 type File struct {
-	gorm.Model
-	BookID   uint
-	Path     string `gorm:"unique_index"`
-	MimeType string
+	ID       uint64 `json:"id"`
+	BookID   uint64 `json:"book_id" gorm:"primary_key"`
+	MimeType string `json:"mimetype" gorm:"primary_key"`
+	Path     string `json:"path"`
 }
-
-// func AddFile
-//     - upload file to s3
-//         - file path is /bucket/dir/BookID/MimeType
-//     - register file into DB

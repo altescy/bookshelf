@@ -9,7 +9,6 @@ import (
 
 	"github.com/altescy/bookshelf/api/controller"
 	"github.com/altescy/bookshelf/api/model"
-	gctx "github.com/gorilla/context"
 	"github.com/jinzhu/gorm"
 	"github.com/julienschmidt/httprouter"
 	_ "github.com/lib/pq"
@@ -74,9 +73,12 @@ func main() {
 	h := controller.NewHandler(db)
 
 	router := httprouter.New()
-	router.GET("/", h.Index)
+	router.POST("/book", h.AddBook)
+	router.GET("/book/:bookid", h.GetBook)
+	router.PUT("/book/:bookid", h.UpdateBook)
+	router.GET("/books", h.GetBooks)
 
 	addr := ":" + port
 	log.Printf("[INFO] start server %s", addr)
-	log.Fatal(http.ListenAndServe(addr, gctx.ClearHandler(h.CommonMiddleware(router))))
+	log.Fatal(http.ListenAndServe(addr, h.CommonMiddleware(router)))
 }
