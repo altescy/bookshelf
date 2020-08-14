@@ -37,17 +37,17 @@ func (h *Handler) CommonMiddleware(f http.Handler) http.Handler {
 }
 
 func (h *Handler) handleSuccess(w http.ResponseWriter, data interface{}) {
-	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(data); err != nil {
 		log.Printf("[WARN] write response json failed. %s", err)
 	}
 }
 
 func (h *Handler) handleError(w http.ResponseWriter, err error, code int) {
-	w.WriteHeader(code)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.WriteHeader(code)
 	log.Printf("[WARN] err: %s", err.Error())
 	data := map[string]interface{}{
 		"code": code,
