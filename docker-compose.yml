@@ -52,13 +52,6 @@ services:
       API_DB_PASSWORD: ${API_DB_PASSWORD}
       API_DB_NAME    : ${API_DB_NAME}
       TZ             : ${TZ}
-    command:
-      - "sh"
-      - "-c"
-      - "go run ./cmd/bookshelf/main.go"
-    working_dir: /api
-    volumes:
-      - ./api:/api
     hostname: api
     restart: always
 
