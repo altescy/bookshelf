@@ -8,18 +8,18 @@ import (
 )
 
 type Book struct {
-	ID          uint64     `json:"id" gorm:"primary_key"`
-	CreatedAt   time.Time  `json:"created_at"`
-	UpdatedAt   time.Time  `json:"updated_at"`
-	DeletedAt   *time.Time `json:"deleted_at" sql:"index"`
-	ISBN        uint64     `json:"isbn"`
-	Title       string     `json:"title"`
-	Author      string     `json:"author"`
-	Description string     `json:"description"`
-	CoverURL    string     `json:"cover_url"`
-	Publisher   string     `json:"publisher"`
-	PubDate     time.Time  `json:"pubdate" gorm:"type:date"`
-	Files       []File     `json:"files"`
+	ID          uint64     `json:"ID" gorm:"primary_key"`
+	CreatedAt   time.Time  `json:"CreatedAt"`
+	UpdatedAt   time.Time  `json:"UpdatedAt"`
+	DeletedAt   *time.Time `json:"-" sql:"index"`
+	ISBN        uint64     `json:"ISBN"`
+	Title       string     `json:"Title"`
+	Author      string     `json:"Author"`
+	Description string     `json:"Description"`
+	CoverURL    string     `json:"Cover_url"`
+	Publisher   string     `json:"Publisher"`
+	PubDate     time.Time  `json:"PubDate" gorm:"type:date"`
+	Files       []File     `json:"Files"`
 }
 
 func AddBook(db *gorm.DB, book *Book) error {
