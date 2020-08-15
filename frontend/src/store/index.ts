@@ -144,6 +144,7 @@ export default new Vuex.Store({
         }
 
         const params = new URLSearchParams();
+        params.append('ISBN', this.state.editingBook.ISBN);
         params.append('Title', this.state.editingBook.Title);
         params.append('Author', this.state.editingBook.Author);
         params.append('Publisher', this.state.editingBook.Publisher);
