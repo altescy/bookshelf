@@ -10,19 +10,19 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-const pubdateLayout = "2006/01/02"
+const pubdateLayout = "2006-01-02"
 
 // AddBook add a new book into database
 func (h *Handler) AddBook(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	book := model.Book{
-		Title:       r.FormValue("title"),
-		Author:      r.FormValue("author"),
-		Description: r.FormValue("description"),
-		CoverURL:    r.FormValue("cover_url"),
-		Publisher:   r.FormValue("publisher"),
+		Title:       r.FormValue("Title"),
+		Author:      r.FormValue("Author"),
+		Description: r.FormValue("Description"),
+		CoverURL:    r.FormValue("CoverUrl"),
+		Publisher:   r.FormValue("Publisher"),
 	}
 
-	isbnString := r.FormValue("isbn")
+	isbnString := r.FormValue("ISBN")
 	if isbnString != "" {
 		isbn, err := strconv.ParseUint(isbnString, 10, 64)
 		if err != nil {
@@ -32,7 +32,7 @@ func (h *Handler) AddBook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 		book.ISBN = isbn
 	}
 
-	pubdateString := r.FormValue("pubdate")
+	pubdateString := r.FormValue("PubDate")
 	if pubdateString != "" {
 		pubdate, err := time.Parse(pubdateLayout, pubdateString)
 		if err != nil {
@@ -45,11 +45,13 @@ func (h *Handler) AddBook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 	if err := model.AddBook(h.db, &book); err != nil {
 		h.handleError(w, err, http.StatusInternalServerError)
 	}
+
+	h.handleSuccess(w, book)
 }
 
 // GetBook return a book having a specified bookid
 func (h *Handler) GetBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	bookidString := ps.ByName("bookid")
+	bookidString := ps.ByName("ID")
 	bookID, err := strconv.ParseUint(bookidString, 10, 64)
 	if err != nil {
 		h.handleError(w, errors.New("invalid bookid"), http.StatusBadRequest)
@@ -116,7 +118,7 @@ func (h *Handler) GetBooks(w http.ResponseWriter, r *http.Request, _ httprouter.
 
 // UUpdateBook update book properties
 func (h *Handler) UpdateBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	bookidString := ps.ByName("bookid")
+	bookidString := ps.ByName("ID")
 	bookID, err := strconv.ParseUint(bookidString, 10, 64)
 	if err != nil {
 		h.handleError(w, errors.New("invalid bookid"), http.StatusBadRequest)
@@ -163,15 +165,15 @@ func (h *Handler) UpdateBook(w http.ResponseWriter, r *http.Request, ps httprout
 		return nil
 	}
 
-	updateString("title", &book.Title)
-	updateString("author", &book.Author)
-	updateString("description", &book.Description)
-	updateString("cover_url", &book.CoverURL)
-	updateString("publisher", &book.Publisher)
-	if err := updateUint64("isbn", &book.ISBN); err != nil {
+	updateString("Title", &book.Title)
+	updateString("Author", &book.Author)
+	updateString("Description", &book.Description)
+	updateString("CoverURL", &book.CoverURL)
+	updateString("Publisher", &book.Publisher)
+	if err := updateUint64("ISBN", &book.ISBN); err != nil {
 		h.handleError(w, errors.New("invalid isbn value"), http.StatusBadRequest)
 	}
-	if err := updateTime("pubdate", &book.PubDate); err != nil {
+	if err := updateTime("PubDate", &book.PubDate); err != nil {
 		h.handleError(w, errors.New("invalid pubdate value"), http.StatusBadRequest)
 	}
 

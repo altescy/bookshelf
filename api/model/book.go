@@ -24,7 +24,7 @@ type Book struct {
 
 func AddBook(db *gorm.DB, book *Book) error {
 	return db.Transaction(func(tx *gorm.DB) error {
-		return handleBookError(tx.Create(book).Error)
+		return handleBookError(tx.Save(book).Error)
 	})
 }
 
