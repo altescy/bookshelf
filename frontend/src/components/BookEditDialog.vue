@@ -17,8 +17,8 @@
       >Cancel</v-btn>
       <v-btn
         text
-        @click.prevent="register()"
-      >Register</v-btn>
+        @click.prevent="update()"
+      >Update</v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -49,6 +49,7 @@
     methods: {
       ...mapActions({
         autocomplete: VuexAction.AUTOCOMPLETE_EDITING_BOOK_BY_ISBN,
+        updateBook: VuexAction.UPDATE_BOOK,
       }),
       ...mapMutations({
         closeDialog: VuexMutation.CLOSE_DIALOG,
@@ -68,8 +69,8 @@
         this.clearAlert();
         this.unsetEditingBook();
       },
-      async register() {
-        this.registerBook().then(() => {
+      async update() {
+        this.updateBook().then(() => {
           this.closeDialog();
           this.clearAlert();
           this.unsetEditingBook();

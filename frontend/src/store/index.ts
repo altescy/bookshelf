@@ -4,6 +4,7 @@ import axios, {AxiosResponse} from 'axios';
 import * as Model from '@/model';
 import * as VuexMutation from '@/vuex/mutation_types';
 import * as VuexAction from '@/vuex/action_types';
+import {deepCopy} from '@/utils';
 
 Vue.use(Vuex)
 
@@ -33,33 +34,19 @@ const initialState: Model.State = {
   dialog: false,
   dialogType: 'register',
   search: '',
-  editingBook: Object.create(emptyBook),
+  editingBook: deepCopy(emptyBook),
 }
 
-function convertResponseToBook(data): Model.Book {
-  const convertPubdate = (pubdate: string): string => {
-    if (!pubdate) return '';
-    return pubdate.split('T')[0]
-  };
-  const convertFiles = (files): File[] => {
-    if (!files) return [];
-    return files;
-  };
-  const book: Model.Book = {
-    ID: data.ID,
-    CreatedAt: data.CreatedAt,
-    UpdatedAt: data.UpdatedAt,
-    ISBN: data.ISBN,
-    Title: data.Title,
-    Author: data.Author,
-    Publisher: data.Publisher,
-    PubDate: convertPubdate(data.PubDate),
-    CoverURL: data.CoverURL,
-    Description: data.Description,
-    Files: convertFiles(data.Files),
-  };
-  return book;
-
+function buildBookParams(book: Model.Book): URLSearchParams {
+  const params = new URLSearchParams();
+  params.append('ISBN', book.ISBN);
+  params.append('Title', book.Title);
+  params.append('Author', book.Author);
+  params.append('Publisher', book.Publisher);
+  params.append('PubDate', book.PubDate);
+  params.append('CoverURL', book.CoverURL);
+  params.append('Description', book.Description);
+  return params;
 }
 
 function extractBookFromOpenBDResponse(response: AxiosResponse): Model.Book {
@@ -75,7 +62,7 @@ function extractBookFromOpenBDResponse(response: AxiosResponse): Model.Book {
   };
   const getDescription = (): string => {
     const contents = data.onix.CollateralDetail.TextContent;
-    const description = contents.find(c => c.TextType === '03');
+    const description = contents.find((c: Model.OnixTextContent) => c.TextType === '03');
     return description? description.Text : '';
   }
   const book: Model.Book = {
@@ -113,13 +100,23 @@ export default new Vuex.Store({
       state.editingBook = book;
     },
     [VuexMutation.UNSET_EDITING_BOOK](state: Model.State) {
-      state.editingBook = Object.create(emptyBook);
+      state.editingBook = deepCopy(emptyBook);
     },
     [VuexMutation.SET_BOOKS](state: Model.State, books) {
       state.books = books;
     },
     [VuexMutation.ADD_BOOK](state: Model.State, book) {
       state.books = state.books.concat(book);
+    },
+    [VuexMutation.UPDATE_BOOK](state: Model.State, book: Model.Book) {
+      const books  = deepCopy(state.books)
+      for(const i in books) {
+        if(books[i].ID == book.ID) {
+          books[i] = book;
+          break;
+        }
+      }
+      state.books = books;
     },
     [VuexMutation.SET_SEARCH_QUERY](state: Model.State, query: string) {
       state.search = query;
@@ -152,8 +149,7 @@ export default new Vuex.Store({
       try {
         const response = await axios.get(API_ENDPOINT + '/books');
         if (response.status === 200) {
-          const books = response.data.map(b => convertResponseToBook(b));
-          commit(VuexMutation.SET_BOOKS, books);
+          commit(VuexMutation.SET_BOOKS, response.data);
         } else {
           throw response.data.err || 'unexpected error';
         }
@@ -171,22 +167,37 @@ export default new Vuex.Store({
         if (!this.state.editingBook.Title) {
           throw 'Title is empty.';
         }
-
-        const params = new URLSearchParams();
-        params.append('ISBN', this.state.editingBook.ISBN);
-        params.append('Title', this.state.editingBook.Title);
-        params.append('Author', this.state.editingBook.Author);
-        params.append('Publisher', this.state.editingBook.Publisher);
-        params.append('PubDate', this.state.editingBook.PubDate);
-        params.append('CoverURL', this.state.editingBook.CoverURL);
-        params.append('Description', this.state.editingBook.Description);
-
+        const params = buildBookParams(this.state.editingBook);
         const response = await axios.post(API_ENDPOINT + '/book', params);
         if (response.status === 200) {
           commit(VuexMutation.ADD_BOOK, response.data);
         } else {
           throw response.data.err || 'unexpected error';
         }
+      } catch (error) {
+        const alertMessage: Model.AlertMessage = {
+          type: 'error',
+          message: String(error),
+        }
+        console.error(error)
+        commit(VuexMutation.SET_ALERT_MESSAGE, alertMessage);
+        throw error
+      }
+    },
+    async [VuexAction.UPDATE_BOOK]({ commit }) {
+      try {
+        if (!this.state.editingBook.Title) {
+          throw 'Title is empty.';
+        }
+        const bookID = String(this.state.editingBook.ID);
+        const params = buildBookParams(this.state.editingBook);
+        const response = await axios.put(API_ENDPOINT + '/book/' + bookID, params);
+        if (response.status === 200) {
+          commit(VuexMutation.UPDATE_BOOK, response.data);
+        } else {
+          throw response.data.err || 'unexpected error';
+        }
+
       } catch (error) {
         const alertMessage: Model.AlertMessage = {
           type: 'error',

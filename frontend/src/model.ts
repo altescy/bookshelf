@@ -36,3 +36,9 @@ export interface State {
   search: string;
   editingBook: Book;
 }
+
+export interface OnixTextContent {
+  ContentAudience: string;
+  Text: string;
+  TextType: string;
+}

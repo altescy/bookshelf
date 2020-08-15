@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-card
-      v-for="book in filteredBooks"
+      v-for="book in filteredBooks()"
       v-bind:key="book.id"
       class="mx-auto"
       max-width="1000px"
@@ -36,23 +36,19 @@
 </template>
 
 <script lang="ts">
-  import Vue from 'vue'
+  import Vue from 'vue';
   import {mapActions, mapMutations, mapState} from 'vuex';
+  import * as Model from '@/model';
   import * as VuexAction from '@/vuex/action_types';
   import * as VuexMutation from '@/vuex/mutation_types';
+  import {deepCopy} from '@/utils';
 
   export default Vue.extend({
     name: 'BookList',
 
     computed: {
       ...mapState(['books', 'search']),
-      filteredBooks: function () {
-        return this.books.filter(e => {
-          const text = [e.Title, e.Author, e.Publisher].join('  ').toLowerCase();
-          return text.indexOf(this.search.toLowerCase()) > -1;
-        });
-      },
-    },
+          },
 
     methods: {
       ...mapActions({
@@ -63,15 +59,22 @@
         setDialogType: VuexMutation.SET_DIALOG_TYPE,
         setEditingBook: VuexMutation.SET_EDITING_BOOK,
       }),
-      openBookEditDialog(book) {
-        this.setEditingBook(book)
+      openBookEditDialog(book: Model.Book) {
+        this.setEditingBook(deepCopy(book));
         this.setDialogType('edit');
         this.openDialog();
+      },
+      filteredBooks() {
+        const query = this.search.toLowerCase();
+        return this.books.filter(function(e: Model.Book): boolean  {
+          const text = [e.Title, e.Author, e.Publisher].join('  ').toLowerCase();
+          return text.indexOf(query) > -1;
+        });
       },
     },
 
     mounted() {
       this.fetchAllBooks();
-    }
+    },
   })
 </script>
