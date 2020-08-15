@@ -8,6 +8,15 @@
 
     <BookEditor/>
 
+    <div style="margin: 0 30px">
+      <v-file-input
+       small-chips
+       multiple
+       label="Files"
+       accept="azw,.azw3,.cbr,.cbz,.cbt,.cb7,.epub,.epub3,.fb2,.fb2.zip,.mobi,.pdf,.txt"
+      ></v-file-input>
+    </div>
+
     <v-card-actions>
       <v-spacer></v-spacer>
       <v-btn
