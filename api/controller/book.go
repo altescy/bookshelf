@@ -30,11 +30,12 @@ func (h *Handler) AddBook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			h.handleError(w, errors.New("invalid pubdate format"), http.StatusBadRequest)
 			return
 		}
-		book.PubDate = pubdate
+		*book.PubDate = pubdate
 	}
 
 	if err := model.AddBook(h.db, &book); err != nil {
 		h.handleError(w, err, http.StatusInternalServerError)
+		return
 	}
 
 	h.handleSuccess(w, book)
@@ -46,9 +47,11 @@ func (h *Handler) DeleteBook(w http.ResponseWriter, r *http.Request, ps httprout
 	bookID, err := strconv.ParseUint(bookidString, 10, 64)
 	if err != nil {
 		h.handleError(w, errors.New("invalid bookid"), http.StatusBadRequest)
+		return
 	}
 	if err := model.DeleteBook(h.db, &model.Book{ID: bookID}); err != nil {
 		h.handleError(w, err, http.StatusInternalServerError)
+		return
 	}
 	h.handleSuccess(w, "successfully deleted")
 }
@@ -59,6 +62,7 @@ func (h *Handler) GetBook(w http.ResponseWriter, r *http.Request, ps httprouter.
 	bookID, err := strconv.ParseUint(bookidString, 10, 64)
 	if err != nil {
 		h.handleError(w, errors.New("invalid bookid"), http.StatusBadRequest)
+		return
 	}
 
 	book, err := model.GetBookByID(h.db, bookID)
@@ -163,8 +167,9 @@ func (h *Handler) UpdateBook(w http.ResponseWriter, r *http.Request, ps httprout
 	updateString("Description", &book.Description)
 	updateString("CoverURL", &book.CoverURL)
 	updateString("Publisher", &book.Publisher)
-	if err := updateTime("PubDate", &book.PubDate); err != nil {
+	if err := updateTime("PubDate", book.PubDate); err != nil {
 		h.handleError(w, errors.New("invalid pubdate value"), http.StatusBadRequest)
+		return
 	}
 
 	err = model.UpdateBook(h.db, book)

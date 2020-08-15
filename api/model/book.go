@@ -18,7 +18,7 @@ type Book struct {
 	Description string     `json:"Description"`
 	CoverURL    string     `json:"Cover_url"`
 	Publisher   string     `json:"Publisher"`
-	PubDate     time.Time  `json:"PubDate" gorm:"type:date"`
+	PubDate     *time.Time `json:"PubDate" gorm:"type:date"`
 	Files       []File     `json:"Files"`
 }
 
