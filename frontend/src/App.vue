@@ -12,7 +12,7 @@
       fab
       fixed
       right
-      @click="openDialog()"
+      @click="openBookRegistrationDialog()"
     >
       <v-icon>mdi-plus</v-icon>
     </v-btn>
@@ -21,7 +21,8 @@
       persistent
       width="800px"
     >
-      <BookRegistrationDialog/>
+      <BookRegistrationDialog v-if="dialogType === 'register'"/>
+      <BookEditDialog v-if="dialogType === 'edit'"/>
     </v-dialog>
 
   </v-app>
@@ -33,6 +34,7 @@ import {mapMutations, mapState} from 'vuex';
 import Header from './components/Header.vue';
 import AlertMessage from './components/AlertMessage.vue';
 import BookRegistrationDialog from './components/BookRegistrationDialog.vue';
+import BookEditDialog from './components/BookEditDialog.vue';
 import * as VuexMutation from '@/vuex/mutation_types';
 
 
@@ -43,17 +45,22 @@ export default Vue.extend({
     Header,
     AlertMessage,
     BookRegistrationDialog,
+    BookEditDialog,
   },
 
   computed: {
-    ...mapState(['dialog', 'globalAlertMessage']),
+    ...mapState(['dialog', 'dialogType', 'globalAlertMessage']),
   },
 
   methods: {
     ...mapMutations({
       openDialog: VuexMutation.OPEN_DIALOG,
+      setDialogType: VuexMutation.SET_DIALOG_TYPE,
     }),
-
+    openBookRegistrationDialog () {
+      this.setDialogType('register');
+      this.openDialog();
+    },
   },
 });
 </script>

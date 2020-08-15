@@ -26,10 +26,13 @@ export interface File {
   Path: string;
 }
 
+export type DialogType = 'register' | 'edit';
+
 export interface State {
   alertMessage: AlertMessage;
   books: Book[];
   dialog: boolean;
+  dialogType: DialogType;
   search: string;
   editingBook: Book;
 }

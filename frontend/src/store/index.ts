@@ -31,6 +31,7 @@ const initialState: Model.State = {
   },
   books: [],
   dialog: false,
+  dialogType: 'register',
   search: '',
   editingBook: Object.create(emptyBook),
 }
@@ -79,6 +80,9 @@ export default new Vuex.Store({
     [VuexMutation.CLOSE_DIALOG](state: Model.State) {
       state.dialog = false;
     },
+    [VuexMutation.SET_DIALOG_TYPE](state: Model.State, type: Model.DialogType) {
+      state.dialogType = type;
+    },
     [VuexMutation.SET_EDITING_BOOK](state: Model.State, book) {
       state.editingBook = book;
     },
@@ -96,6 +100,9 @@ export default new Vuex.Store({
     },
   },
   actions: {
+    [VuexAction.OPEN_DIALOG]({ commit }, type: Model.DialogType) {
+      commit(VuexMutation.OPEN_DIALOG, type);
+    },
     async [VuexAction.AUTOCOMPLETE_EDITING_BOOK_BY_ISBN]({ commit }) {
       const isbn = this.state.editingBook.ISBN;
       try {
