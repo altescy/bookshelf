@@ -1,0 +1,12 @@
+export const SET_ALERT_MESSAGE = 'SET_GLOBAL_ALERT_MESSAGE';
+
+export const OPEN_DIALOG = 'OPEN_DIALOG';
+export const CLOSE_DIALOG = 'CLOSE_DIALOG';
+
+export const SET_EDITING_BOOK = 'SET_EDITING_BOOK';
+export const UNSET_EDITING_BOOK = 'UNSET_EDITING_BOOK';
+
+export const SET_BOOKS = 'SET_BOOKS';
+export const ADD_BOOK = 'ADD_BOOK';
+
+export const SET_SEARCH_QUERY = 'SET_SEARCH_QUERY';
