@@ -58,7 +58,7 @@
           v-model="editingBook.Description"
           prepend-icon="mdi-text"
           placeholder="Description"
-          rows="2"
+          rows="1"
         ></v-textarea>
       </v-col>
 
