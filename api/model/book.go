@@ -16,7 +16,7 @@ type Book struct {
 	Title       string     `json:"Title"`
 	Author      string     `json:"Author"`
 	Description string     `json:"Description"`
-	CoverURL    string     `json:"Cover_url"`
+	CoverURL    string     `json:"CoverURL"`
 	Publisher   string     `json:"Publisher"`
 	PubDate     string     `json:"PubDate"`
 	Files       []File     `json:"Files"`
