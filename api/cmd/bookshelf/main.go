@@ -82,6 +82,7 @@ func main() {
 	router.POST("/book", h.AddBook)
 	router.GET("/book/:bookid", h.GetBook)
 	router.PUT("/book/:bookid", h.UpdateBook)
+	router.DELETE("/book/:bookid", h.DeleteBook)
 	router.GET("/books", h.GetBooks)
 
 	addr := ":" + port

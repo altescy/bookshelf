@@ -28,6 +28,12 @@ func AddBook(db *gorm.DB, book *Book) error {
 	})
 }
 
+func DeleteBook(db *gorm.DB, book *Book) error {
+	return db.Transaction(func(tx *gorm.DB) error {
+		return handleBookError(tx.Delete(book).Error)
+	})
+}
+
 func GetBookByID(db *gorm.DB, bookID uint64) (*Book, error) {
 	book := Book{}
 	if err := db.First(&book, bookID).Error; err != nil {

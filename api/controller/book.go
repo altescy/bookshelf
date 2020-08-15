@@ -40,9 +40,22 @@ func (h *Handler) AddBook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 	h.handleSuccess(w, book)
 }
 
+//DeleteBook delete specified book from DB
+func (h *Handler) DeleteBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	bookidString := ps.ByName("bookid")
+	bookID, err := strconv.ParseUint(bookidString, 10, 64)
+	if err != nil {
+		h.handleError(w, errors.New("invalid bookid"), http.StatusBadRequest)
+	}
+	if err := model.DeleteBook(h.db, &model.Book{ID: bookID}); err != nil {
+		h.handleError(w, err, http.StatusInternalServerError)
+	}
+	h.handleSuccess(w, "successfully deleted")
+}
+
 // GetBook return a book having a specified bookid
 func (h *Handler) GetBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	bookidString := ps.ByName("ID")
+	bookidString := ps.ByName("bookid")
 	bookID, err := strconv.ParseUint(bookidString, 10, 64)
 	if err != nil {
 		h.handleError(w, errors.New("invalid bookid"), http.StatusBadRequest)
@@ -107,9 +120,9 @@ func (h *Handler) GetBooks(w http.ResponseWriter, r *http.Request, _ httprouter.
 	}
 }
 
-// UUpdateBook update book properties
+// UpdateBook update book properties
 func (h *Handler) UpdateBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	bookidString := ps.ByName("ID")
+	bookidString := ps.ByName("bookid")
 	bookID, err := strconv.ParseUint(bookidString, 10, 64)
 	if err != nil {
 		h.handleError(w, errors.New("invalid bookid"), http.StatusBadRequest)
