@@ -12,7 +12,7 @@ type Book struct {
 	CreatedAt   time.Time  `json:"CreatedAt"`
 	UpdatedAt   time.Time  `json:"UpdatedAt"`
 	DeletedAt   *time.Time `json:"-" sql:"index"`
-	ISBN        uint64     `json:"ISBN"`
+	ISBN        string     `json:"ISBN"`
 	Title       string     `json:"Title"`
 	Author      string     `json:"Author"`
 	Description string     `json:"Description"`

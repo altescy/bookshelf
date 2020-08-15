@@ -15,21 +15,12 @@ const pubdateLayout = "2006-01-02"
 // AddBook add a new book into database
 func (h *Handler) AddBook(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	book := model.Book{
+		ISBN:        r.FormValue("ISBN"),
 		Title:       r.FormValue("Title"),
 		Author:      r.FormValue("Author"),
 		Description: r.FormValue("Description"),
 		CoverURL:    r.FormValue("CoverUrl"),
 		Publisher:   r.FormValue("Publisher"),
-	}
-
-	isbnString := r.FormValue("ISBN")
-	if isbnString != "" {
-		isbn, err := strconv.ParseUint(isbnString, 10, 64)
-		if err != nil {
-			h.handleError(w, errors.New("invalid isbn format"), http.StatusBadRequest)
-			return
-		}
-		book.ISBN = isbn
 	}
 
 	pubdateString := r.FormValue("PubDate")
@@ -140,18 +131,6 @@ func (h *Handler) UpdateBook(w http.ResponseWriter, r *http.Request, ps httprout
 			*value = newValue
 		}
 	}
-	updateUint64 := func(field string, value *uint64) error {
-		newValueString := r.FormValue(field)
-		if newValueString == "" {
-			return nil
-		}
-		newValue, err := strconv.ParseUint(newValueString, 10, 64)
-		if err != nil {
-			return err
-		}
-		*value = newValue
-		return nil
-	}
 	updateTime := func(field string, value *time.Time) error {
 		newValueString := r.FormValue(field)
 		if newValueString == "" {
@@ -165,14 +144,12 @@ func (h *Handler) UpdateBook(w http.ResponseWriter, r *http.Request, ps httprout
 		return nil
 	}
 
+	updateString("ISBN", &book.ISBN)
 	updateString("Title", &book.Title)
 	updateString("Author", &book.Author)
 	updateString("Description", &book.Description)
 	updateString("CoverURL", &book.CoverURL)
 	updateString("Publisher", &book.Publisher)
-	if err := updateUint64("ISBN", &book.ISBN); err != nil {
-		h.handleError(w, errors.New("invalid isbn value"), http.StatusBadRequest)
-	}
 	if err := updateTime("PubDate", &book.PubDate); err != nil {
 		h.handleError(w, errors.New("invalid pubdate value"), http.StatusBadRequest)
 	}
