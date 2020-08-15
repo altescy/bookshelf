@@ -36,6 +36,32 @@ const initialState: Model.State = {
   editingBook: Object.create(emptyBook),
 }
 
+function convertResponseToBook(data): Model.Book {
+  const convertPubdate = (pubdate: string): string => {
+    if (!pubdate) return '';
+    return pubdate.split('T')[0]
+  };
+  const convertFiles = (files): File[] => {
+    if (!files) return [];
+    return files;
+  };
+  const book: Model.Book = {
+    ID: data.ID,
+    CreatedAt: data.CreatedAt,
+    UpdatedAt: data.UpdatedAt,
+    ISBN: data.ISBN,
+    Title: data.Title,
+    Author: data.Author,
+    Publisher: data.Publisher,
+    PubDate: convertPubdate(data.PubDate),
+    CoverURL: data.CoverURL,
+    Description: data.Description,
+    Files: convertFiles(data.Files),
+  };
+  return book;
+
+}
+
 function extractBookFromOpenBDResponse(response: AxiosResponse): Model.Book {
   const data = response.data[0];
   if (!data) {
@@ -126,7 +152,8 @@ export default new Vuex.Store({
       try {
         const response = await axios.get(API_ENDPOINT + '/books');
         if (response.status === 200) {
-          commit(VuexMutation.SET_BOOKS, response.data);
+          const books = response.data.map(b => convertResponseToBook(b));
+          commit(VuexMutation.SET_BOOKS, books);
         } else {
           throw response.data.err || 'unexpected error';
         }
