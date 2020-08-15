@@ -4,13 +4,10 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/altescy/bookshelf/api/model"
 	"github.com/julienschmidt/httprouter"
 )
-
-const pubdateLayout = "2006-01-02"
 
 // AddBook add a new book into database
 func (h *Handler) AddBook(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -19,18 +16,9 @@ func (h *Handler) AddBook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 		Title:       r.FormValue("Title"),
 		Author:      r.FormValue("Author"),
 		Description: r.FormValue("Description"),
-		CoverURL:    r.FormValue("CoverUrl"),
+		CoverURL:    r.FormValue("CoverURL"),
 		Publisher:   r.FormValue("Publisher"),
-	}
-
-	pubdateString := r.FormValue("PubDate")
-	if pubdateString != "" {
-		pubdate, err := time.Parse(pubdateLayout, pubdateString)
-		if err != nil {
-			h.handleError(w, errors.New("invalid pubdate format"), http.StatusBadRequest)
-			return
-		}
-		*book.PubDate = pubdate
+		PubDate:     r.FormValue("PubDate"),
 	}
 
 	if err := model.AddBook(h.db, &book); err != nil {
@@ -148,18 +136,6 @@ func (h *Handler) UpdateBook(w http.ResponseWriter, r *http.Request, ps httprout
 			*value = newValue
 		}
 	}
-	updateTime := func(field string, value *time.Time) error {
-		newValueString := r.FormValue(field)
-		if newValueString == "" {
-			return nil
-		}
-		newValue, err := time.Parse(pubdateLayout, newValueString)
-		if err != nil {
-			return err
-		}
-		*value = newValue
-		return nil
-	}
 
 	updateString("ISBN", &book.ISBN)
 	updateString("Title", &book.Title)
@@ -167,10 +143,7 @@ func (h *Handler) UpdateBook(w http.ResponseWriter, r *http.Request, ps httprout
 	updateString("Description", &book.Description)
 	updateString("CoverURL", &book.CoverURL)
 	updateString("Publisher", &book.Publisher)
-	if err := updateTime("PubDate", book.PubDate); err != nil {
-		h.handleError(w, errors.New("invalid pubdate value"), http.StatusBadRequest)
-		return
-	}
+	updateString("PubDate", &book.PubDate)
 
 	err = model.UpdateBook(h.db, book)
 	if err != nil {
