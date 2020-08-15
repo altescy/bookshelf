@@ -131,7 +131,15 @@ export default new Vuex.Store({
       try {
         const response = await axios.get(OPENBD_ENDPOINT + '/get?isbn=' + isbn)
         if (response.status === 200) {
-          const book = extractBookFromOpenBDResponse(response);
+          const completedBook = extractBookFromOpenBDResponse(response);
+          const book = deepCopy(this.state.editingBook);
+          book.ISBN = completedBook.ISBN;
+          book.Title = completedBook.Title;
+          book.Author = completedBook.Author;
+          book.Publisher = completedBook.Publisher;
+          book.PubDate = completedBook.PubDate;
+          book.CoverURL = completedBook.CoverURL;
+          book.Description = completedBook.Description;
           commit(VuexMutation.SET_EDITING_BOOK, book);
         } else {
           throw 'failed to fetch book information'
