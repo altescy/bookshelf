@@ -46,6 +46,11 @@ function extractBookFromOpenBDResponse(response: AxiosResponse): Model.Book {
     const date = pubdate.slice(6, 8);
     return year + '-' + month + '-' + date;
   };
+  const getDescription = (): string => {
+    const contents = data.onix.CollateralDetail.TextContent;
+    const description = contents.find(c => c.TextType === '03');
+    return description? description.Text : '';
+  }
   const book: Model.Book = {
     ID: 0,
     CreatedAt: '',
@@ -56,7 +61,7 @@ function extractBookFromOpenBDResponse(response: AxiosResponse): Model.Book {
     Publisher: data.summary.publisher,
     PubDate: convertPubdate(data.summary.pubdate),
     CoverURL: data.summary.cover,
-    Description: data.onix.CollateralDetail.TextContent.slice(-1)[0].Text,
+    Description: getDescription(),
     Files: [],
   };
   return book;
