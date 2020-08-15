@@ -10,6 +10,20 @@ Vue.use(Vuex)
 const API_ENDPOINT = 'http://localhost/api';
 const OPENBD_ENDPOINT = 'https://api.openbd.jp/v1';
 
+const emptyBook: Model.Book = {
+  ID: 0,
+  CreatedAt: '',
+  UpdatedAt: '',
+  ISBN: '',
+  Title: '',
+  Author: '',
+  Description: '',
+  CoverURL: '',
+  Publisher: '',
+  PubDate: '',
+  Files: [],
+};
+
 const initialState: Model.State = {
   alertMessage: {
     type: 'success',
@@ -18,19 +32,7 @@ const initialState: Model.State = {
   books: [],
   dialog: false,
   search: '',
-  editingBook: {
-    ID: 0,
-    CreatedAt: '',
-    UpdatedAt: '',
-    ISBN: '',
-    Title: '',
-    Author: '',
-    Description: '',
-    CoverURL: '',
-    Publisher: '',
-    PubDate: '',
-    Files: [],
-  }
+  editingBook: Object.create(emptyBook),
 }
 
 function extractBookFromOpenBDResponse(response: AxiosResponse): Model.Book {
@@ -76,19 +78,7 @@ export default new Vuex.Store({
       state.editingBook = book;
     },
     [VuexMutation.UNSET_EDITING_BOOK](state: Model.State) {
-      state.editingBook = {
-        ID: 0,
-        CreatedAt: '',
-        UpdatedAt: '',
-        ISBN: '',
-        Title: '',
-        Author: '',
-        Description: '',
-        CoverURL: '',
-        Publisher: '',
-        PubDate: '',
-        Files: [],
-      };
+      state.editingBook = Object.create(emptyBook);
     },
     [VuexMutation.SET_BOOKS](state: Model.State, books) {
       state.books = books;
