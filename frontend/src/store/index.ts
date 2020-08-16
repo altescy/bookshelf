@@ -62,6 +62,7 @@ function extractBookFromOpenBDResponse(response: AxiosResponse): Model.Book {
   };
   const getDescription = (): string => {
     const contents = data.onix.CollateralDetail.TextContent;
+    if (!contents) return '';
     const description = contents.find((c: Model.OnixTextContent) => c.TextType === '03');
     return description? description.Text : '';
   }
