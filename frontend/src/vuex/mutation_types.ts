@@ -10,5 +10,6 @@ export const UNSET_EDITING_BOOK = 'UNSET_EDITING_BOOK';
 export const SET_BOOKS = 'SET_BOOKS';
 export const ADD_BOOK = 'ADD_BOOK';
 export const UPDATE_BOOK = 'UPDATE_BOOK';
+export const DELETE_BOOK_BY_ID = 'DELETE_BOOK_BY_ID';
 
 export const SET_SEARCH_QUERY = 'SET_SEARCH_QUERY';

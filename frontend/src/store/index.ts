@@ -98,7 +98,7 @@ export default new Vuex.Store({
       state.dialogType = type;
     },
     [VuexMutation.SET_EDITING_BOOK](state: Model.State, book) {
-      state.editingBook = book;
+      state.editingBook = deepCopy(book);
     },
     [VuexMutation.UNSET_EDITING_BOOK](state: Model.State) {
       state.editingBook = deepCopy(emptyBook);
@@ -118,6 +118,10 @@ export default new Vuex.Store({
         }
       }
       state.books = books;
+    },
+    [VuexMutation.DELETE_BOOK_BY_ID](state: Model.State, bookID: number) {
+      const books = deepCopy(state.books);
+      state.books = books.filter((b: Model.Book) => b.ID != bookID);
     },
     [VuexMutation.SET_SEARCH_QUERY](state: Model.State, query: string) {
       state.search = query;
@@ -203,6 +207,26 @@ export default new Vuex.Store({
         const response = await axios.put(API_ENDPOINT + '/book/' + bookID, params);
         if (response.status === 200) {
           commit(VuexMutation.UPDATE_BOOK, response.data);
+        } else {
+          throw response.data.err || 'unexpected error';
+        }
+
+      } catch (error) {
+        const alertMessage: Model.AlertMessage = {
+          type: 'error',
+          message: String(error),
+        }
+        console.error(error)
+        commit(VuexMutation.SET_ALERT_MESSAGE, alertMessage);
+        throw error
+      }
+    },
+    async [VuexAction.DELETE_EDITING_BOOK]({ commit }) {
+      try {
+        const bookID = String(this.state.editingBook.ID);
+        const response = await axios.delete(API_ENDPOINT + '/book/' + bookID);
+        if (response.status === 200) {
+          commit(VuexMutation.DELETE_BOOK_BY_ID, this.state.editingBook.ID);
         } else {
           throw response.data.err || 'unexpected error';
         }

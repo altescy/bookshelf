@@ -56,8 +56,10 @@ export default Vue.extend({
     ...mapMutations({
       openDialog: VuexMutation.OPEN_DIALOG,
       setDialogType: VuexMutation.SET_DIALOG_TYPE,
+      unsetEditingBook: VuexMutation.UNSET_EDITING_BOOK,
     }),
     openBookRegistrationDialog () {
+      this.unsetEditingBook();
       this.setDialogType('register');
       this.openDialog();
     },

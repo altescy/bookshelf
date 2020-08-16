@@ -41,7 +41,6 @@
   import * as Model from '@/model';
   import * as VuexAction from '@/vuex/action_types';
   import * as VuexMutation from '@/vuex/mutation_types';
-  import {deepCopy} from '@/utils';
 
   export default Vue.extend({
     name: 'BookList',
@@ -60,7 +59,7 @@
         setEditingBook: VuexMutation.SET_EDITING_BOOK,
       }),
       openBookEditDialog(book: Model.Book) {
-        this.setEditingBook(deepCopy(book));
+        this.setEditingBook(book);
         this.setDialogType('edit');
         this.openDialog();
       },

@@ -1,26 +1,59 @@
 <template>
-  <v-card>
-    <v-card-title class="grey darken-2 white--text">
-      Edit Book
-    </v-card-title>
+  <div>
+    <v-card>
+      <v-card-title class="grey darken-2 white--text">
+        Edit Book
+      </v-card-title>
 
-    <AlertMessage />
+      <AlertMessage />
 
-    <BookEditor/>
+      <BookEditor/>
 
-    <v-card-actions>
-      <v-spacer></v-spacer>
-      <v-btn
-        text
-        color="primary"
-        @click="cancel()"
-      >Cancel</v-btn>
-      <v-btn
-        text
-        @click.prevent="update()"
-      >Update</v-btn>
-    </v-card-actions>
-  </v-card>
+      <v-card-actions>
+        <v-btn
+          text
+          color="red"
+          @click="deleteDialog = true"
+        >Delete</v-btn>
+        <v-spacer></v-spacer>
+        <v-btn
+          text
+          color="primary"
+          @click="cancel()"
+        >Cancel</v-btn>
+        <v-btn
+          text
+          @click.prevent="update()"
+        >Update</v-btn>
+      </v-card-actions>
+    <v-dialog
+     v-model="deleteDialog"
+     max-width="500px"
+    >
+      <v-card>
+        <v-card-title class="headline">
+          Delete this book?
+        </v-card-title>
+        <v-card-text>
+          Are you sure you want to delete this book?
+        </v-card-text>
+        <v-card-actions>
+          <v-btn
+            text
+            color="primary"
+            @click="deleteBook()"
+          >OK</v-btn>
+          <v-btn
+           text
+           color="red"
+           @click="deleteDialog = false"
+          >Cancel</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    </v-card>
+  </div>
 </template>
 
 <script lang="ts">
@@ -37,6 +70,12 @@
 
     props: ['bookID'],
 
+    data: function() {
+      return {
+        deleteDialog: false,
+      }
+    },
+
     components: {
       AlertMessage,
       BookEditor,
@@ -50,6 +89,7 @@
       ...mapActions({
         autocomplete: VuexAction.AUTOCOMPLETE_EDITING_BOOK_BY_ISBN,
         updateBook: VuexAction.UPDATE_BOOK,
+        deleteEditingBook: VuexAction.DELETE_EDITING_BOOK,
       }),
       ...mapMutations({
         closeDialog: VuexMutation.CLOSE_DIALOG,
@@ -75,6 +115,16 @@
           this.clearAlert();
           this.unsetEditingBook();
         });
+      },
+      async deleteBook() {
+        this.deleteEditingBook().then(() => {
+          this.deleteDialog = false;
+          this.closeDialog();
+          this.unsetEditingBook();
+        }, () => {
+          console.error('failed to delete book')
+          this.deleteDialog = false;
+        })
       },
     },
   })
