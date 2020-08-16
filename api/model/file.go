@@ -16,7 +16,7 @@ type File struct {
 	DeletedAt *time.Time `json:"-" sql:"index"`
 	BookID    uint64     `json:"BookId"`
 	MimeType  string     `json:"MimeType"`
-	Path      string     `json:"Path"`
+	Path      string     `json:"-"`
 }
 
 func AddFile(db *gorm.DB, file *File) error {
@@ -31,7 +31,7 @@ func AddFile(db *gorm.DB, file *File) error {
 
 	// add file to database
 	return db.Transaction(func(tx *gorm.DB) error {
-		return handleBookError(tx.Save(file).Error)
+		return handleBookError(tx.Save(&file).Error)
 	})
 }
 

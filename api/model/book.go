@@ -44,7 +44,8 @@ func GetBookByID(db *gorm.DB, bookID uint64) (*Book, error) {
 
 func GetBooks(db *gorm.DB) (*[]Book, error) {
 	books := []Book{}
-	if err := db.Find(&books).Error; err != nil {
+	err := db.Preload("Files").Find(&books).Error
+	if err != nil {
 		return nil, handleBookError(err)
 	}
 	return &books, nil
