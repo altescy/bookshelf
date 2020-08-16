@@ -61,7 +61,7 @@ func GetBooksWithCount(db *gorm.DB, count uint64) (*[]Book, error) {
 
 func GetBooksWithNext(db *gorm.DB, next uint64) (*[]Book, error) {
 	books := []Book{}
-	if err := db.Preload("Files").Where("id >= ?", next).Find(&books).Error; err != nil {
+	if err := db.Preload("Files").Where("id > ?", next).Find(&books).Error; err != nil {
 		return nil, handleBookError(err)
 	}
 	return &books, nil
@@ -69,7 +69,7 @@ func GetBooksWithNext(db *gorm.DB, next uint64) (*[]Book, error) {
 
 func GetBooksWithNextCount(db *gorm.DB, next, count uint64) (*[]Book, error) {
 	books := []Book{}
-	if err := db.Preload("Files").Where("id >= ?", next).Limit(count).Find(&books).Error; err != nil {
+	if err := db.Preload("Files").Where("id > ?", next).Limit(count).Find(&books).Error; err != nil {
 		return nil, handleBookError(err)
 	}
 	return &books, nil
