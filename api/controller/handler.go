@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/altescy/bookshelf/api/storage"
 	"github.com/jinzhu/gorm"
 )
 
@@ -16,12 +17,14 @@ const (
 
 type Handler struct {
 	db         *gorm.DB
+	storage    storage.Storage
 	enableCors bool
 }
 
-func NewHandler(db *gorm.DB, enableCors bool) *Handler {
+func NewHandler(db *gorm.DB, storage storage.Storage, enableCors bool) *Handler {
 	return &Handler{
 		db:         db,
+		storage:    storage,
 		enableCors: enableCors,
 	}
 }
