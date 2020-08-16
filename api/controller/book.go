@@ -132,7 +132,7 @@ func (h *Handler) UpdateBook(w http.ResponseWriter, r *http.Request, ps httprout
 
 	updateString := func(field string, value *string) {
 		newValue := r.FormValue(field)
-		if newValue != "" {
+		if newValue != *value {
 			*value = newValue
 		}
 	}
