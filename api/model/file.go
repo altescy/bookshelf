@@ -31,7 +31,14 @@ func AddFile(db *gorm.DB, file *File) error {
 
 	// add file to database
 	return db.Transaction(func(tx *gorm.DB) error {
-		return handleBookError(tx.Save(&file).Error)
+		return handleFileError(tx.Save(&file).Error)
+	})
+}
+
+func DeleteFile(db *gorm.DB, bookID uint64, mime string) error {
+	return db.Transaction(func(tx *gorm.DB) error {
+		err := db.Delete(File{}, "book_id=? and mime_type=?", bookID, mime).Error
+		return handleFileError(err)
 	})
 }
 
@@ -58,4 +65,13 @@ func generateULID() string {
 	entropy := ulid.Monotonic(rand.New(rand.NewSource(t.UnixNano())), 0)
 	id := ulid.MustNew(ulid.Timestamp(t), entropy)
 	return id.String()
+}
+
+func handleFileError(err error) error {
+	switch {
+	case gorm.IsRecordNotFoundError(err):
+		return ErrFileNotFound
+	default:
+		return err
+	}
 }

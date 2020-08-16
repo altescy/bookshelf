@@ -12,6 +12,38 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+func (h *Handler) DeleteFile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	ext := "." + ps.ByName("ext")
+	bookidString := ps.ByName("bookid")
+	bookID, err := strconv.ParseUint(bookidString, 10, 64)
+	if err != nil {
+		h.handleError(w, errors.New("invalid bookid"), http.StatusBadRequest)
+		return
+	}
+
+	mime, err := model.MimeByExt(ext)
+	switch {
+	case err == model.ErrMimeNotFound:
+		h.handleError(w, err, http.StatusNotFound)
+		return
+	case err != nil:
+		h.handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	err = model.DeleteFile(h.db, bookID, mime)
+	switch {
+	case err == model.ErrFileNotFound:
+		h.handleError(w, err, http.StatusNotFound)
+		return
+	case err != nil:
+		h.handleError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	h.handleSuccess(w, "successfully deleted")
+}
+
 func (h *Handler) DownloadFile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	ext := "." + ps.ByName("ext")
 	bookidString := ps.ByName("bookid")
@@ -35,6 +67,9 @@ func (h *Handler) DownloadFile(w http.ResponseWriter, r *http.Request, ps httpro
 	switch {
 	case err == model.ErrFileNotFound:
 		h.handleError(w, err, http.StatusNotFound)
+		return
+	case err != nil:
+		h.handleError(w, err, http.StatusInternalServerError)
 		return
 	}
 
