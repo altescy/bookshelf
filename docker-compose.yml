@@ -6,6 +6,12 @@ services:
       - postgres
     command: postgres:5432
 
+  waitforminio:
+    image: dadarek/wait-for-dependencies
+    depends_on:
+      - minio
+    command: minio:${MINIO_PORT}
+
   postgres:
     image: postgres:12.3-alpine
     environment:
@@ -30,10 +36,10 @@ services:
     command:
       - "server"
       - "--address"
-      - "${MINIO_HOST}:${MINIO_PORT}"
+      - "${MINIO_HOST}:80"
       - "/data"
     ports:
-      - "${MINIO_PORT}:${MINIO_PORT}"
+      - "${MINIO_PORT}:80"
     volumes:
       - minio:/data
     hostname: minio
@@ -43,16 +49,22 @@ services:
     build: ./api
     depends_on:
       - postgres
+      - minio
       - waitfordb
+      - waitforminio
     environment:
-      API_PORT       : 80
-      API_DB_HOST    : ${API_DB_HOST}
-      API_DB_PORT    : ${API_DB_PORT}
-      API_DB_USER    : ${API_DB_USER}
-      API_DB_PASSWORD: ${API_DB_PASSWORD}
-      API_DB_NAME    : ${API_DB_NAME}
-      API_ENABLE_CORS: ${API_ENABLE_CORS}
-      TZ             : ${TZ}
+      API_PORT                 : 80
+      API_DB_HOST              : ${API_DB_HOST}
+      API_DB_PORT              : ${API_DB_PORT}
+      API_DB_USER              : ${API_DB_USER}
+      API_DB_PASSWORD          : ${API_DB_PASSWORD}
+      API_DB_NAME              : ${API_DB_NAME}
+      API_AWS_ACCESS_KEY_ID    : ${API_AWS_ACCESS_KEY_ID}
+      API_AWS_SECRET_ACCESS_KEY: ${API_AWS_SECRET_ACCESS_KEY}
+      API_AWS_S3_REGION        : ${API_AWS_S3_REGION}
+      API_AWS_S3_ENDPOINT_URL  : ${API_AWS_S3_ENDPOINT_URL}
+      API_ENABLE_CORS          : ${API_ENABLE_CORS}
+      TZ                       : ${TZ}
     hostname: api
     restart: always
 
