@@ -22,12 +22,12 @@
       <v-btn
         text
         color="primary"
-        @click="cancel()"
-      >Cancel</v-btn>
-      <v-btn
-        text
         @click.prevent="register()"
       >Register</v-btn>
+      <v-btn
+        text
+        @click="cancel()"
+      >Cancel</v-btn>
     </v-card-actions>
   </v-card>
 </template>

@@ -1,31 +1,30 @@
 <template>
-  <div>
-    <v-card>
-      <v-card-title class="grey darken-2 white--text">
-        Edit Book
-      </v-card-title>
+  <v-card>
+    <v-card-title class="grey darken-2 white--text">
+      Edit Book
+    </v-card-title>
 
-      <AlertMessage />
+    <AlertMessage />
 
-      <BookEditor/>
+    <BookEditor/>
 
-      <v-card-actions>
-        <v-btn
-          text
-          color="red"
-          @click="deleteDialog = true"
-        >Delete</v-btn>
-        <v-spacer></v-spacer>
-        <v-btn
-          text
-          color="primary"
-          @click="cancel()"
-        >Cancel</v-btn>
-        <v-btn
-          text
-          @click.prevent="update()"
-        >Update</v-btn>
-      </v-card-actions>
+    <v-card-actions>
+      <v-btn
+        text
+        color="red"
+        @click="deleteDialog = true"
+      >Delete</v-btn>
+      <v-spacer></v-spacer>
+      <v-btn
+        text
+        color="primary"
+        @click.prevent="update()"
+      >Update</v-btn>
+      <v-btn
+        text
+        @click="cancel()"
+      >Cancel</v-btn>
+    </v-card-actions>
     <v-dialog
      v-model="deleteDialog"
      max-width="500px"
@@ -45,15 +44,12 @@
           >OK</v-btn>
           <v-btn
            text
-           color="red"
            @click="deleteDialog = false"
           >Cancel</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-
-    </v-card>
-  </div>
+  </v-card>
 </template>
 
 <script lang="ts">
