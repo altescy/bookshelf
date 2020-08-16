@@ -32,6 +32,20 @@ func GetMimeAlias(mime string) (string, error) {
 
 }
 
+func GetMimeAliasByFilename(filename string) (string, error) {
+	mime, err := MimeByFilename(filename)
+	if err != nil {
+		return "", nil
+	}
+
+	mimeAlias, err := GetMimeAlias(mime)
+	if err != nil {
+		return "", nil
+	}
+
+	return mimeAlias, nil
+}
+
 func GetMimes() map[string]string {
 	return copyMimes(extToMime)
 }

@@ -127,6 +127,7 @@ func main() {
 	router.PUT("/book/:bookid", h.UpdateBook)
 	router.DELETE("/book/:bookid", h.DeleteBook)
 	router.POST("/book/:bookid/files", h.UploadFiles)
+	router.GET("/book/:bookid/file/:ext", h.DownloadFile)
 	router.GET("/books", h.GetBooks)
 	router.GET("/mime/:ext", h.GetMime)
 	router.GET("/mimes", h.GetMimes)

@@ -2,11 +2,9 @@ package model
 
 import (
 	"fmt"
-	"io"
 	"math/rand"
 	"time"
 
-	"github.com/altescy/bookshelf/api/storage"
 	"github.com/jinzhu/gorm"
 	"github.com/oklog/ulid"
 )
@@ -21,12 +19,7 @@ type File struct {
 	Path      string     `json:"Path"`
 }
 
-func AddFile(db *gorm.DB, storage storage.Storage, file *File, body io.ReadSeeker) error {
-	// check book existence
-	if _, err := GetBookByID(db, file.BookID); err != nil {
-		return err
-	}
-
+func AddFile(db *gorm.DB, file *File) error {
 	// check the same MimeType existence
 	err := db.Take(&File{}, "book_id=? and mime_type=?", file.BookID, file.MimeType).Error
 	switch {
@@ -36,26 +29,31 @@ func AddFile(db *gorm.DB, storage storage.Storage, file *File, body io.ReadSeeke
 		return err
 	}
 
-	// set file path
-	filename := getULID()
-	mimealias, err := GetMimeAlias(file.MimeType)
-	if err != nil {
-		return err
-	}
-	file.Path = fmt.Sprintf("%d/%s/%s", file.BookID, mimealias, filename)
-
-	// upload file to storage
-	if err := storage.Upload(file.Path, body); err != nil {
-		return err
-	}
-
 	// add file to database
 	return db.Transaction(func(tx *gorm.DB) error {
 		return handleBookError(tx.Save(file).Error)
 	})
 }
 
-func getULID() string {
+func GetFile(db *gorm.DB, bookID uint64, mime string) (*File, error) {
+	file := File{}
+	err := db.Last(&file, "book_id=? and mime_type=?", bookID, mime).Error
+	switch {
+	case gorm.IsRecordNotFoundError(err):
+		return nil, ErrFileNotFound
+	case err != nil:
+		return nil, err
+	}
+	return &file, nil
+}
+
+func GenerateFilePath(bookID uint64, mimeAlias string) string {
+	filename := generateULID()
+	path := fmt.Sprintf("%d/%s/%s", bookID, mimeAlias, filename)
+	return path
+}
+
+func generateULID() string {
 	t := time.Now()
 	entropy := ulid.Monotonic(rand.New(rand.NewSource(t.UnixNano())), 0)
 	id := ulid.MustNew(ulid.Timestamp(t), entropy)
