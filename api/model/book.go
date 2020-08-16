@@ -36,7 +36,7 @@ func DeleteBook(db *gorm.DB, book *Book) error {
 
 func GetBookByID(db *gorm.DB, bookID uint64) (*Book, error) {
 	book := Book{}
-	if err := db.First(&book, bookID).Error; err != nil {
+	if err := db.Preload("Files").First(&book, bookID).Error; err != nil {
 		return nil, handleBookError(err)
 	}
 	return &book, nil
@@ -53,7 +53,7 @@ func GetBooks(db *gorm.DB) (*[]Book, error) {
 
 func GetBooksWithCount(db *gorm.DB, count uint64) (*[]Book, error) {
 	books := []Book{}
-	if err := db.Limit(count).Find(&books).Error; err != nil {
+	if err := db.Preload("Files").Limit(count).Find(&books).Error; err != nil {
 		return nil, handleBookError(err)
 	}
 	return &books, nil
@@ -61,7 +61,7 @@ func GetBooksWithCount(db *gorm.DB, count uint64) (*[]Book, error) {
 
 func GetBooksWithNext(db *gorm.DB, next uint64) (*[]Book, error) {
 	books := []Book{}
-	if err := db.Where("id >= ?", next).Find(&books).Error; err != nil {
+	if err := db.Preload("Files").Where("id >= ?", next).Find(&books).Error; err != nil {
 		return nil, handleBookError(err)
 	}
 	return &books, nil
@@ -69,7 +69,7 @@ func GetBooksWithNext(db *gorm.DB, next uint64) (*[]Book, error) {
 
 func GetBooksWithNextCount(db *gorm.DB, next, count uint64) (*[]Book, error) {
 	books := []Book{}
-	if err := db.Where("id >= ?", next).Limit(count).Find(&books).Error; err != nil {
+	if err := db.Preload("Files").Where("id >= ?", next).Limit(count).Find(&books).Error; err != nil {
 		return nil, handleBookError(err)
 	}
 	return &books, nil
