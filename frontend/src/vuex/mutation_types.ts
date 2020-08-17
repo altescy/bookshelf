@@ -13,4 +13,8 @@ export const ADD_BOOK = 'ADD_BOOK';
 export const UPDATE_BOOK = 'UPDATE_BOOK';
 export const DELETE_BOOK_BY_ID = 'DELETE_BOOK_BY_ID';
 
+export const SET_FILES = 'SET_FILES';
+
+export const SET_MIMES = 'SET_MIMES';
+
 export const SET_SEARCH_QUERY = 'SET_SEARCH_QUERY';

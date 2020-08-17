@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import axios, {AxiosResponse} from 'axios';
+import axios, {AxiosError, AxiosResponse} from 'axios';
 import * as Model from '@/model';
 import * as VuexMutation from '@/vuex/mutation_types';
 import * as VuexAction from '@/vuex/action_types';
@@ -30,8 +30,10 @@ const initialState: Model.State = {
   books: [],
   dialog: false,
   dialogType: 'register',
+  mimes: new Map(),
   search: '',
   editingBook: deepCopy(emptyBook),
+  files: [],
 }
 
 function buildBookParams(book: Model.Book): URLSearchParams {
@@ -79,10 +81,20 @@ function extractBookFromOpenBDResponse(response: AxiosResponse): Model.Book {
   return book;
 }
 
+function handleAPIError(commit: Function, error: AxiosError) {
+  const alertMessage: Model.AlertMessage = {
+    id: 0,
+    type: 'error',
+    message: String(error),
+  };
+  commit(VuexMutation.SET_ALERT_MESSAGE, alertMessage);
+  console.error(error)
+  throw error
+}
+
 export default new Vuex.Store({
   state: initialState,
-  mutations: {
-    [VuexMutation.SET_ALERT_MESSAGE](state: Model.State, alertMessage: Model.AlertMessage) {
+  mutations: { [VuexMutation.SET_ALERT_MESSAGE](state: Model.State, alertMessage: Model.AlertMessage) {
       alertMessage.id = state.alertMessages.length;
       state.alertMessages = state.alertMessages.concat(alertMessage);
     },
@@ -124,6 +136,12 @@ export default new Vuex.Store({
       const books = deepCopy(state.books);
       state.books = books.filter((b: Model.Book) => b.ID != bookID);
     },
+    [VuexMutation.SET_FILES](state: Model.State, files: File[]) {
+      state.files = files;
+    },
+    [VuexMutation.SET_MIMES](state: Model.State, mimes: Map<string, string>) {
+      state.mimes = mimes;
+    },
     [VuexMutation.SET_SEARCH_QUERY](state: Model.State, query: string) {
       state.search = query;
     },
@@ -151,13 +169,7 @@ export default new Vuex.Store({
           throw 'failed to fetch book information'
         }
       } catch (error) {
-        const alertMessage: Model.AlertMessage = {
-          id: 0,
-          type: 'error',
-          message: String(error),
-        }
-        commit(VuexMutation.SET_ALERT_MESSAGE, alertMessage);
-        console.error(error)
+        handleAPIError(commit, error);
       }
     },
     async [VuexAction.FETCH_ALL_BOOKS]({ commit }) {
@@ -169,36 +181,55 @@ export default new Vuex.Store({
           throw response.data.err || 'unexpected error';
         }
       } catch (error) {
-        const alertMessage: Model.AlertMessage = {
-          id: 0,
-          type: 'error',
-          message: String(error),
-        }
-        commit(VuexMutation.SET_ALERT_MESSAGE, alertMessage);
-        throw error
+        handleAPIError(commit, error);
       }
     },
     async [VuexAction.REGISTER_EDITING_BOOK]({ commit }) {
       try {
+        // validate files
+        const files = this.state.files;
+        const types: string[] = [];
+        for (const file of files) {
+          if(types.includes(file.type)) throw 'file type conflict';
+          types.push(file.type);
+        }
+
+        // register book entry
         if (!this.state.editingBook.Title) {
           throw 'Title is empty.';
         }
         const params = buildBookParams(this.state.editingBook);
-        const response = await axios.post(API_ENDPOINT + '/book', params);
-        if (response.status === 200) {
-          commit(VuexMutation.ADD_BOOK, response.data);
+        const bookResponse = await axios.post(API_ENDPOINT + '/book', params);
+        if (bookResponse.status === 200) {
+          commit(VuexMutation.ADD_BOOK, bookResponse.data);
         } else {
-          throw response.data.err || 'unexpected error';
+          throw bookResponse.data.err || 'unexpected error';
+        }
+
+        // upload files
+        console.log(this.state.files)
+        const bookID = String(bookResponse.data.ID);
+        const formData = new FormData();
+        for(const file of this.state.files) {
+          formData.append("files", file);
+        }
+        const filesResponse = await axios.post(API_ENDPOINT + '/book/' + bookID + '/files', formData);
+        if (filesResponse.status === 200) {
+          for(const result of filesResponse.data) {
+            if (result.status !== 'ok') {
+              const alertMessage: Model.AlertMessage = {
+                id: 0,
+                type: "error",
+                message: result.content,
+              }
+              commit(VuexMutation.SET_ALERT_MESSAGE, alertMessage);
+            }
+          }
+        } else {
+          throw filesResponse.data.err || 'unexpected error';
         }
       } catch (error) {
-        const alertMessage: Model.AlertMessage = {
-          id: 0,
-          type: 'error',
-          message: String(error),
-        }
-        console.error(error)
-        commit(VuexMutation.SET_ALERT_MESSAGE, alertMessage);
-        throw error
+        handleAPIError(commit, error);
       }
     },
     async [VuexAction.UPDATE_BOOK]({ commit }) {
@@ -216,14 +247,7 @@ export default new Vuex.Store({
         }
 
       } catch (error) {
-        const alertMessage: Model.AlertMessage = {
-          id: 0,
-          type: 'error',
-          message: String(error),
-        }
-        console.error(error)
-        commit(VuexMutation.SET_ALERT_MESSAGE, alertMessage);
-        throw error
+        handleAPIError(commit, error);
       }
     },
     async [VuexAction.DELETE_EDITING_BOOK]({ commit }) {
@@ -237,16 +261,21 @@ export default new Vuex.Store({
         }
 
       } catch (error) {
-        const alertMessage: Model.AlertMessage = {
-          id: 0,
-          type: 'error',
-          message: String(error),
-        }
-        console.error(error)
-        commit(VuexMutation.SET_ALERT_MESSAGE, alertMessage);
-        throw error
+        handleAPIError(commit, error);
       }
     },
+    async [VuexAction.FETCH_MIMES]({ commit }) {
+      try {
+        const response = await axios.get(API_ENDPOINT + '/mimes');
+        if (response.status === 200) {
+          commit(VuexMutation.SET_MIMES, response.data);
+        } else {
+          throw response.data.err || 'unexpected error';
+        }
+      } catch (error) {
+        handleAPIError(commit, error);
+      }
+    }
   },
   modules: {
   }

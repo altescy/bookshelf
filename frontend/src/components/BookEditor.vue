@@ -61,27 +61,52 @@
           rows="1"
         ></v-textarea>
       </v-col>
-
+      <v-col cols="12">
+        <v-file-input
+         v-model="files"
+         small-chips
+         multiple
+         label="Files"
+         :accept="acceptMimes()"
+        ></v-file-input>
+      </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script lang="ts">
   import Vue from 'vue'
-  import {mapActions, mapState} from 'vuex';
+  import {mapActions, mapMutations, mapState} from 'vuex';
   import * as VuexAction from '@/vuex/action_types';
+  import * as VuexMutation from '@/vuex/mutation_types';
 
   export default Vue.extend({
     name: 'BookRegistrationDialog',
 
-        computed: {
-      ...mapState(['editingBook'])
+    computed: {
+      ...mapState(['editingBook', 'mimes']),
+      files: {
+        get: function() {
+          return this.$store.state.files;
+        },
+        set: function(files: File[]) {
+          this.setFiles(files);
+        },
+      }
     },
 
     methods: {
       ...mapActions({
         autocomplete: VuexAction.AUTOCOMPLETE_EDITING_BOOK_BY_ISBN,
       }),
+      ...mapMutations({
+        setFiles: VuexMutation.SET_FILES,
+      }),
+      acceptMimes(): string {
+        const ms: string[] = [];
+        for(const ext in this.mimes) ms.push(ext);
+        return ms.join(',');
+      },
     },
   })
 </script>

@@ -17,10 +17,10 @@ export interface Book {
   CoverURL: string;
   Publisher: string;
   PubDate: string;  // format: 2020-01-02
-  Files: File[];
+  Files: BookFile[];
 }
 
-export interface File {
+export interface BookFile {
   ID: number;
   BookID: number;
   MimeType: string;
@@ -34,8 +34,10 @@ export interface State {
   books: Book[];
   dialog: boolean;
   dialogType: DialogType;
+  mimes: Map<string, string>;
   search: string;
   editingBook: Book;
+  files: File[];
 }
 
 export interface OnixTextContent {
