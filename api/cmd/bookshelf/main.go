@@ -99,8 +99,9 @@ func main() {
 	)
 
 	db := createGormDB()
-	autoMigrate(db)
 	defer db.Close()
+
+	autoMigrate(db)
 
 	var storage storage.Storage
 	surl, err := url.Parse(storageURL)
