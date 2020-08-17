@@ -1,6 +1,7 @@
 export type AlertMessageType = 'success' | 'warning' | 'error';
 
 export interface AlertMessage {
+  id: number;
   type: AlertMessageType;
   message: string;
 }
@@ -29,7 +30,7 @@ export interface File {
 export type DialogType = 'register' | 'edit';
 
 export interface State {
-  alertMessage: AlertMessage;
+  alertMessages: AlertMessage[];
   books: Book[];
   dialog: boolean;
   dialogType: DialogType;

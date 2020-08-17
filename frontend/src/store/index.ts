@@ -26,10 +26,7 @@ const emptyBook: Model.Book = {
 };
 
 const initialState: Model.State = {
-  alertMessage: {
-    type: 'success',
-    message: '',
-  },
+  alertMessages: [],
   books: [],
   dialog: false,
   dialogType: 'register',
@@ -86,7 +83,11 @@ export default new Vuex.Store({
   state: initialState,
   mutations: {
     [VuexMutation.SET_ALERT_MESSAGE](state: Model.State, alertMessage: Model.AlertMessage) {
-      state.alertMessage= alertMessage;
+      alertMessage.id = state.alertMessages.length;
+      state.alertMessages = state.alertMessages.concat(alertMessage);
+    },
+    [VuexMutation.DELETE_ALERT_MESSAGE](state: Model.State, alertMessage: Model.AlertMessage) {
+      state.alertMessages = state.alertMessages.filter((m: Model.AlertMessage) => m.id != alertMessage.id);
     },
     [VuexMutation.OPEN_DIALOG](state: Model.State) {
       state.dialog = true;
@@ -151,6 +152,7 @@ export default new Vuex.Store({
         }
       } catch (error) {
         const alertMessage: Model.AlertMessage = {
+          id: 0,
           type: 'error',
           message: String(error),
         }
@@ -168,6 +170,7 @@ export default new Vuex.Store({
         }
       } catch (error) {
         const alertMessage: Model.AlertMessage = {
+          id: 0,
           type: 'error',
           message: String(error),
         }
@@ -189,6 +192,7 @@ export default new Vuex.Store({
         }
       } catch (error) {
         const alertMessage: Model.AlertMessage = {
+          id: 0,
           type: 'error',
           message: String(error),
         }
@@ -213,6 +217,7 @@ export default new Vuex.Store({
 
       } catch (error) {
         const alertMessage: Model.AlertMessage = {
+          id: 0,
           type: 'error',
           message: String(error),
         }
@@ -233,6 +238,7 @@ export default new Vuex.Store({
 
       } catch (error) {
         const alertMessage: Model.AlertMessage = {
+          id: 0,
           type: 'error',
           message: String(error),
         }

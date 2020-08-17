@@ -1,12 +1,16 @@
 <template>
-  <v-alert
-    dense
-    v-if="alertMessage.message"
-    :type="alertMessage.type"
-    @click="clearAlert()"
-  >
-    {{ alertMessage.message }}
-  </v-alert>
+  <div>
+    <v-alert
+      dense
+      v-for="msg in alertMessages"
+      v-bind:key="msg.id"
+      :type="msg.type"
+      @click="clearAlert(msg)"
+      style="margin: 0;"
+    >
+      {{ msg.message }}
+    </v-alert>
+  </div>
 </template>
 
 <script lang="ts">
@@ -19,19 +23,15 @@ export default Vue.extend({
   name: 'AlertMessage',
 
   computed: {
-    ...mapState(['alertMessage']),
+    ...mapState(['alertMessages']),
   },
 
   methods: {
     ...mapMutations({
-      setAlertMessage: VuexMutataion.SET_ALERT_MESSAGE,
+      deleteAlertMessage: VuexMutataion.DELETE_ALERT_MESSAGE,
     }),
-    clearAlert () {
-      const msg: Model.AlertMessage = {
-        type: 'success',
-        message: '',
-      };
-      this.setAlertMessage(msg);
+    clearAlert (msg: Model.AlertMessage) {
+      this.deleteAlertMessage(msg);
     },
 
   },

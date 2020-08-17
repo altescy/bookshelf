@@ -24,7 +24,6 @@
       <BookRegistrationDialog v-if="dialogType === 'register'"/>
       <BookEditDialog v-if="dialogType === 'edit'"/>
     </v-dialog>
-
   </v-app>
 </template>
 
