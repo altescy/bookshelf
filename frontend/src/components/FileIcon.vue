@@ -85,8 +85,11 @@
         }
       },
       deleteFile() {
-        this.deleteFileAction(this.file);
-        this.deleteDialog = false;
+        this.deleteFileAction(this.file).then(() => {
+          this.deleteDialog = false;
+        }, () => {
+          this.deleteDialog = false;
+        });
       },
     },
   });

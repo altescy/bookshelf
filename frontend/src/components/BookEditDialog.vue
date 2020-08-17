@@ -111,7 +111,7 @@
           this.setFiles([]);
           this.unsetEditingBook();
         }, () => {
-          console.error('failed to delete book')
+          this.deleteDialog = false;
         })
       },
     },
