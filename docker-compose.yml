@@ -55,6 +55,7 @@ services:
     environment:
       API_PORT                 : 80
       API_ENDPOINT             : ${API_ENDPOINT}
+      API_STORAGE_URL          : ${API_STORAGE_URL}
       API_DB_HOST              : ${API_DB_HOST}
       API_DB_PORT              : ${API_DB_PORT}
       API_DB_USER              : ${API_DB_USER}
@@ -64,6 +65,7 @@ services:
       API_AWS_SECRET_ACCESS_KEY: ${API_AWS_SECRET_ACCESS_KEY}
       API_AWS_S3_REGION        : ${API_AWS_S3_REGION}
       API_AWS_S3_ENDPOINT_URL  : ${API_AWS_S3_ENDPOINT_URL}
+      API_AWS_S3_CREATE_BUCKET : ${API_AWS_S3_CREATE_BUCKET}
       API_ENABLE_CORS          : ${API_ENABLE_CORS}
       TZ                       : ${TZ}
     hostname: api
