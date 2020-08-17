@@ -54,6 +54,7 @@ services:
       - waitforminio
     environment:
       API_PORT                 : 80
+      API_ENDPOINT             : ${API_ENDPOINT}
       API_DB_HOST              : ${API_DB_HOST}
       API_DB_PORT              : ${API_DB_PORT}
       API_DB_USER              : ${API_DB_USER}
