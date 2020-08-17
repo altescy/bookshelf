@@ -13,6 +13,7 @@ export const ADD_BOOK = 'ADD_BOOK';
 export const UPDATE_BOOK = 'UPDATE_BOOK';
 export const DELETE_BOOK_BY_ID = 'DELETE_BOOK_BY_ID';
 export const DELEFTE_FILE_BY_ID = 'DELETE_FILE_BY_ID';
+export const UPDATE_FILE = 'UPDATE_FILE';
 
 export const SET_FILES = 'SET_FILES';
 

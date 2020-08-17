@@ -96,7 +96,7 @@ function validateFiles(files: File[]) {
   }
 }
 
-async function uploadFiles(bookID: number, files: File[]) {
+async function uploadFiles(commit: Function, bookID: number, files: File[]) {
   const formData = new FormData();
   for(const file of files) {
     formData.append("files", file);
@@ -104,8 +104,15 @@ async function uploadFiles(bookID: number, files: File[]) {
   const filesResponse = await axios.post(API_ENDPOINT + '/book/' + bookID + '/files', formData);
   if (filesResponse.status === 200) {
     for(const result of filesResponse.data) {
-      if (result.status !== 'ok') {
-        throw result.file + " : " + result.content;
+      if (result.status === 'ok'){
+        commit(VuexMutation.UPDATE_FILE, result.content)
+      } else {
+        const msg: Model.AlertMessage = {
+          id: 0,
+          type: "error",
+          message: result.file + " : " + result.content,
+        }
+        commit(VuexMutation.SET_ALERT_MESSAGE, msg);
       }
     }
   } else {
@@ -179,6 +186,22 @@ export default new Vuex.Store({
       editingBook.Files = editingBook.Files.filter((f: Model.BookFile) => f.ID !== fileID);
       state.editingBook = editingBook;
     },
+    [VuexMutation.UPDATE_FILE](state: Model.State, file: Model.BookFile) {
+      // update file in book list
+      state.books = deepCopy(state.books).map((b: Model.Book): Model.Book => {
+        if (!b.Files) b.Files = []
+        b.Files = b.Files.filter((f: Model.BookFile): boolean => f.MimeType !== file.MimeType)
+        b.Files.push(file)
+        return b;
+      });
+      // update file in editing book
+      if (state.editingBook.ID === file.BookID) {
+        const book = state.editingBook;
+        book.Files = book.Files.filter((f: Model.BookFile): boolean => f.MimeType !== file.MimeType)
+        book.Files.push(file);
+        state.editingBook = book;
+      }
+    },
     [VuexMutation.SET_FILES](state: Model.State, files: File[]) {
       state.files = files;
     },
@@ -246,7 +269,7 @@ export default new Vuex.Store({
 
         // upload files
         const bookID = bookResponse.data.ID;
-        await uploadFiles(bookID, files);
+        await uploadFiles(commit, bookID, files);
       } catch (error) {
         handleAPIError(commit, error);
       }
@@ -259,7 +282,7 @@ export default new Vuex.Store({
         const files = this.state.files;
         validateFiles(files);
 
-        await uploadFiles(book.ID, files);
+        await uploadFiles(commit, book.ID, files);
 
         const params = buildBookParams(this.state.editingBook);
         const response = await axios.put(API_ENDPOINT + '/book/' + book.ID, params);
