@@ -9,7 +9,7 @@ import {deepCopy} from '@/utils';
 
 Vue.use(Vuex)
 
-const API_ENDPOINT = 'http://localhost/api';
+const API_ENDPOINT = '/api';
 const OPENBD_ENDPOINT = 'https://api.openbd.jp/v1';
 
 const emptyBook: Model.Book = {

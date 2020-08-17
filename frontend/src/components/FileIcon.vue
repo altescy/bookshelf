@@ -78,7 +78,7 @@
       onClick: function() {
         if (this.mode === 'download') {
           const alias = this.getAlias(this.file.MimeType);
-          const url = 'http://localhost/api/book/' + this.file.BookID + '/file/' + alias;
+          const url = '/api/book/' + this.file.BookID + '/file/' + alias;
 
           const fileLink = document.createElement('a');
           fileLink.href = url;
