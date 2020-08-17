@@ -15,3 +15,12 @@ export const MimeToAlias: Map<string, string> = new Map([
   ["application/pdf", "pdf"],
   ["text/plain", "txt"],
 ]);
+
+export const MimeToColor: Map<string, string> = new Map([
+  ["application/x-mobi8-ebook", "orange"],
+  ["application/epub+zip", "lime"],
+  ["application/fb2+zip", "light-blue"],
+  ["application/x-mobipocket-ebook", "amber"],
+  ["application/pdf", "cyan"],
+  ["text/plain", "blue-grey"],
+]);

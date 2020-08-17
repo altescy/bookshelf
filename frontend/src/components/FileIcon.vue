@@ -3,7 +3,7 @@
     <v-btn
      rounded
      small
-     color="primary"
+     :color="getColor(file.MimeType)"
      @click="onClick()"
     >
       <v-icon
@@ -44,7 +44,7 @@
   import Vue from 'vue';
   import {mapActions, mapState} from 'vuex';
   import * as VuexAction from '@/vuex/action_types';
-  import {MimeToAlias} from '@/file'
+  import {MimeToAlias, MimeToColor} from '@/file'
 
   export default Vue.extend({
     name: 'FileIcon',
@@ -69,6 +69,11 @@
         const alias = MimeToAlias.get(mime);
         if(alias === undefined) throw 'unknown mime';
         return String(alias);
+      },
+      getColor(mime: string): string {
+        const color = MimeToColor.get(mime);
+        if(color === undefined) return "grey";
+        return color
       },
       onClick: function() {
         if (this.mode === 'download') {
