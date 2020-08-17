@@ -189,6 +189,7 @@ export default new Vuex.Store({
     [VuexMutation.UPDATE_FILE](state: Model.State, file: Model.BookFile) {
       // update file in book list
       state.books = deepCopy(state.books).map((b: Model.Book): Model.Book => {
+        if (b.ID !== file.BookID) return b;
         if (!b.Files) b.Files = []
         b.Files = b.Files.filter((f: Model.BookFile): boolean => f.MimeType !== file.MimeType)
         b.Files.push(file)
