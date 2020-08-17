@@ -49,12 +49,12 @@
     computed: {
       ...mapState(['search']),
       query: {
-        get: function() {
+        get(): string {
           return this.search;
         },
-        set: function(value) {
+        set(value: string) {
           this.setSearchQuery(value)
-        }
+        },
       }
     },
 
@@ -64,7 +64,5 @@
       }),
     },
 
-    watch: {
-    }
   });
 </script>

@@ -61,6 +61,19 @@
           rows="1"
         ></v-textarea>
       </v-col>
+      <v-col cols="12" v-if="editingBook.Files.length > 0">
+        <v-icon
+         style="margin-right: 8px"
+        >mdi-file-document-multiple-outline</v-icon>
+        <FileIcon
+         v-for="file in editingBook.Files"
+         v-bind:key="file.ID"
+         :book="editingBook"
+         :file="file"
+         mode="delete"
+         style="display: inline"
+        />
+      </v-col>
       <v-col cols="12">
         <v-file-input
          v-model="files"
@@ -79,20 +92,25 @@
   import {mapActions, mapMutations, mapState} from 'vuex';
   import * as VuexAction from '@/vuex/action_types';
   import * as VuexMutation from '@/vuex/mutation_types';
+  import FileIcon from '@/components/FileIcon.vue';
 
   export default Vue.extend({
     name: 'BookRegistrationDialog',
 
+    components: {
+      FileIcon,
+    },
+
     computed: {
       ...mapState(['editingBook', 'mimes']),
       files: {
-        get: function() {
+        get(): File[] {
           return this.$store.state.files;
         },
-        set: function(files: File[]) {
+        set(files: File[]) {
           this.setFiles(files);
         },
-      }
+      },
     },
 
     methods: {

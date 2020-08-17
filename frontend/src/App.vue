@@ -29,11 +29,12 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import {mapMutations, mapState} from 'vuex';
+import {mapActions, mapMutations, mapState} from 'vuex';
 import Header from './components/Header.vue';
 import AlertMessage from './components/AlertMessage.vue';
 import BookRegistrationDialog from './components/BookRegistrationDialog.vue';
 import BookEditDialog from './components/BookEditDialog.vue';
+import * as VuexAction from '@/vuex/action_types';
 import * as VuexMutation from '@/vuex/mutation_types';
 
 
@@ -52,6 +53,9 @@ export default Vue.extend({
   },
 
   methods: {
+    ...mapActions({
+      fetchMimes: VuexAction.FETCH_MIMES,
+    }),
     ...mapMutations({
       openDialog: VuexMutation.OPEN_DIALOG,
       setDialogType: VuexMutation.SET_DIALOG_TYPE,
@@ -62,6 +66,10 @@ export default Vue.extend({
       this.setDialogType('register');
       this.openDialog();
     },
+  },
+
+  mounted() {
+    this.fetchMimes();
   },
 });
 </script>

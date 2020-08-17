@@ -23,7 +23,7 @@
       <v-btn
         text
         @click="cancel()"
-      >Cancel</v-btn>
+      >Close</v-btn>
     </v-card-actions>
     <v-dialog
      v-model="deleteDialog"
@@ -88,27 +88,30 @@
       }),
       ...mapMutations({
         closeDialog: VuexMutation.CLOSE_DIALOG,
+        setFiles: VuexMutation.SET_FILES,
         setEditingBook: VuexMutation.SET_EDITING_BOOK,
         unsetEditingBook: VuexMutation.UNSET_EDITING_BOOK,
       }),
       cancel () {
         this.closeDialog();
+        this.setFiles([]);
         this.unsetEditingBook();
       },
       async update() {
         this.updateBook().then(() => {
-          this.closeDialog();
-          this.unsetEditingBook();
+          this.setFiles([]);
+        }, () => {
+          console.error('failed to delete book')
         });
       },
       async deleteBook() {
         this.deleteEditingBook().then(() => {
           this.deleteDialog = false;
           this.closeDialog();
+          this.setFiles([]);
           this.unsetEditingBook();
         }, () => {
           console.error('failed to delete book')
-          this.deleteDialog = false;
         })
       },
     },

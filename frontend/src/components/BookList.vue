@@ -28,8 +28,13 @@
       </v-list-item>
 
       <v-card-actions>
-        <v-btn text>Button</v-btn>
-        <v-btn text>Button</v-btn>
+        <FileIcon
+         v-for="file in book.Files"
+         v-bind:key="file.ID"
+         :book="book"
+         :file="file"
+         mode="download"
+        />
       </v-card-actions>
     </v-card>
   </div>
@@ -41,9 +46,14 @@
   import * as Model from '@/model';
   import * as VuexAction from '@/vuex/action_types';
   import * as VuexMutation from '@/vuex/mutation_types';
+  import FileIcon from '@/components/FileIcon.vue';
 
   export default Vue.extend({
     name: 'BookList',
+
+    components: {
+      FileIcon,
+    },
 
     computed: {
       ...mapState(['books', 'search']),

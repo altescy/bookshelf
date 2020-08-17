@@ -47,7 +47,6 @@
       ...mapActions({
         autocomplete: VuexAction.AUTOCOMPLETE_EDITING_BOOK_BY_ISBN,
         registerBook: VuexAction.REGISTER_EDITING_BOOK,
-        fetchMimes: VuexAction.FETCH_MIMES,
       }),
       ...mapMutations({
         closeDialog: VuexMutation.CLOSE_DIALOG,
@@ -67,10 +66,6 @@
           this.unsetEditingBook();
         });
       },
-    },
-
-    mounted() {
-      this.fetchMimes();
     },
   })
 </script>

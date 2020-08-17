@@ -9,5 +9,6 @@ export const FETCH_MIMES = 'FETCH_MIMES';
 
 export const UPDATE_BOOK = 'UPDATE_BOOK';
 export const DELETE_EDITING_BOOK = 'DELETE_EDITING_BOOK';
+export const DELETE_FILE = 'DELETE_FILE';
 
 export const OPEN_DIALOG = 'OPEN_DIALOG';
