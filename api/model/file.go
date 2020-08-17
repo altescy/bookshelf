@@ -17,6 +17,7 @@ type File struct {
 	BookID    uint64     `json:"BookID"`
 	MimeType  string     `json:"MimeType"`
 	Path      string     `json:"-"`
+	Link      string     `json:"Link" gorm:"-"`
 }
 
 func AddFile(db *gorm.DB, file *File) error {

@@ -1,6 +1,7 @@
 package model
 
 import (
+	"mime"
 	"path/filepath"
 	"strings"
 )
@@ -60,6 +61,12 @@ func MimeByExt(ext string) (string, error) {
 
 func MimeByFilename(filename string) (string, error) {
 	ext := strings.ToLower(filepath.Ext(filename))
+
+	mimeType := mime.TypeByExtension(ext)
+	if mimeType != "" {
+		return mimeType, nil
+	}
+
 	mimeType, ok := extToMime[ext]
 	if ok {
 		return mimeType, nil

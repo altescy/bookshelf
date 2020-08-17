@@ -3,6 +3,7 @@ package model
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	"github.com/lib/pq"
 )
@@ -12,6 +13,7 @@ type Book struct {
 	CreatedAt   time.Time  `json:"CreatedAt"`
 	UpdatedAt   time.Time  `json:"UpdatedAt"`
 	DeletedAt   *time.Time `json:"-" sql:"index"`
+	UUID        string     `json:"UUID" gorm:"not null"`
 	ISBN        string     `json:"ISBN"`
 	Title       string     `json:"Title"`
 	Author      string     `json:"Author"`
@@ -23,6 +25,11 @@ type Book struct {
 }
 
 func AddBook(db *gorm.DB, book *Book) error {
+	uid, err := uuid.NewRandom()
+	if err != nil {
+		return err
+	}
+	book.UUID = uid.String()
 	return db.Transaction(func(tx *gorm.DB) error {
 		return handleBookError(tx.Save(book).Error)
 	})

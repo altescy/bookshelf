@@ -133,6 +133,7 @@ func main() {
 	router.GET("/books", h.GetBooks)
 	router.GET("/mime/:ext", h.GetMime)
 	router.GET("/mimes", h.GetMimes)
+	router.GET("/opds", h.GetOPDSFeed)
 
 	addr := ":" + port
 	log.Printf("[INFO] start server %s", addr)
