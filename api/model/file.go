@@ -14,7 +14,7 @@ type File struct {
 	CreatedAt time.Time  `json:"CreatedAt"`
 	UpdatedAt time.Time  `json:"UpdatedAt"`
 	DeletedAt *time.Time `json:"-" sql:"index"`
-	BookID    uint64     `json:"BookId"`
+	BookID    uint64     `json:"BookID"`
 	MimeType  string     `json:"MimeType"`
 	Path      string     `json:"-"`
 }
