@@ -2,11 +2,9 @@ package storage
 
 import (
 	"io"
-	"log"
 	"path/filepath"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
@@ -17,26 +15,6 @@ type S3Storage struct {
 }
 
 func NewS3Storage(client *s3.S3, bucket, root string) *S3Storage {
-	// create bucket if not exists
-	_, err := client.HeadBucket(&s3.HeadBucketInput{
-		Bucket: aws.String(bucket),
-	})
-	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			switch awsErr.Code() {
-			case "NotFound":
-				_, err = client.CreateBucket(&s3.CreateBucketInput{Bucket: aws.String(bucket)})
-				if err != nil {
-					log.Fatal(err)
-				}
-			default:
-				log.Fatal(err)
-			}
-		} else {
-			log.Fatal(err)
-		}
-	}
-
 	return &S3Storage{
 		client: client,
 		bucket: bucket,

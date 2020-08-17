@@ -12,6 +12,7 @@ import (
 	"github.com/altescy/bookshelf/api/model"
 	"github.com/altescy/bookshelf/api/storage"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -69,6 +70,7 @@ func createS3Storage(bucket, root string) *storage.S3Storage {
 		awsSessionToken = getEnv("AWS_SESSION_TOKEN", "")
 		s3Region        = getEnv("AWS_S3_REGION", "us-east-1")
 		s3EndpointURL   = getEnv("AWS_S3_ENDPOINT_URL", "http://localhost:9000")
+		createBucket    = getEnv("AWS_S3_CREATE_BUCKET", "")
 	)
 
 	sess, err := session.NewSession(&aws.Config{
@@ -81,6 +83,30 @@ func createS3Storage(bucket, root string) *storage.S3Storage {
 		log.Fatalf("cannot create aws session: %v", err)
 	}
 	svc := s3.New(sess)
+
+	// create bucket if not exists
+	if createBucket != "" {
+		log.Printf("[INFO] check bucket existence")
+		_, err := svc.HeadBucket(&s3.HeadBucketInput{
+			Bucket: aws.String(bucket),
+		})
+		if err != nil {
+			if awsErr, ok := err.(awserr.Error); ok {
+				switch awsErr.Code() {
+				case "NotFound":
+					log.Printf("[INFO] create a new bucket")
+					_, err = svc.CreateBucket(&s3.CreateBucketInput{Bucket: aws.String(bucket)})
+					if err != nil {
+						log.Fatalf("failed to create bucket: %v", err)
+					}
+				default:
+					log.Fatal(err)
+				}
+			} else {
+				log.Fatal(err)
+			}
+		}
+	}
 
 	return storage.NewS3Storage(svc, bucket, root)
 }
