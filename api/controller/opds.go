@@ -21,10 +21,10 @@ func (h *Handler) GetOPDSFeed(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	// assume that opdsURL is http://[host][basePath]/opds
-	opdsURL := "http://" + r.Host + r.URL.Path
-	basePath := r.URL.Path[:len(r.URL.Path)-5]
-	href := r.URL.Path
+	// assume that opdsURL is http://[host][endpoint][basePath]/opds
+	opdsURL := "http://" + r.Host + h.endpoint + r.URL.Path
+	basePath := h.endpoint + r.URL.Path[:len(r.URL.Path)-5]
+	href := h.endpoint + r.URL.Path
 
 	for i, book := range *books {
 		for j, file := range book.Files {
