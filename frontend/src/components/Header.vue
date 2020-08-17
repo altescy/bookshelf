@@ -31,9 +31,11 @@
 
     <v-spacer></v-spacer>
 
-    <v-btn icon>
-      <v-icon>mdi-rss</v-icon>
-    </v-btn>
+    <a href="/opds">
+      <v-btn icon>
+        <v-icon>mdi-rss</v-icon>
+      </v-btn>
+    </a>
 
   </v-app-bar>
 </template>
