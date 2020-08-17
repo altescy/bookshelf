@@ -159,7 +159,7 @@ export default new Vuex.Store({
       state.books = books;
     },
     [VuexMutation.ADD_BOOK](state: Model.State, book) {
-      state.books = state.books.concat(book);
+      state.books = [book].concat(state.books);
     },
     [VuexMutation.UPDATE_BOOK](state: Model.State, book: Model.Book) {
       const books  = deepCopy(state.books)
