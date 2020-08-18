@@ -222,7 +222,7 @@ export default new Vuex.Store({
       commit(VuexMutation.OPEN_DIALOG, type);
     },
     async [VuexAction.AUTOCOMPLETE_EDITING_BOOK_BY_ISBN]({ commit }) {
-      const isbn = this.state.editingBook.ISBN;
+      const isbn = this.state.editingBook.ISBN.replace(/-/g, '');
       try {
         const response = await axios.get(OPENBD_ENDPOINT + '/get?isbn=' + isbn)
         if (response.status === 200) {
