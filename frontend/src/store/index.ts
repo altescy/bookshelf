@@ -35,6 +35,7 @@ const initialState: Model.State = {
   search: '',
   editingBook: deepCopy(emptyBook),
   files: [],
+  overlay: false,
 }
 
 function buildBookParams(book: Model.Book): URLSearchParams {
@@ -148,6 +149,9 @@ export default new Vuex.Store({
     },
     [VuexMutation.SET_DIALOG_TYPE](state: Model.State, type: Model.DialogType) {
       state.dialogType = type;
+    },
+    [VuexMutation.SET_OVERLAY](state: Model.State, overlay: boolean) {
+      state.overlay = overlay;
     },
     [VuexMutation.SET_EDITING_BOOK](state: Model.State, book) {
       state.editingBook = deepCopy(book);

@@ -49,6 +49,7 @@
         registerBook: VuexAction.REGISTER_EDITING_BOOK,
       }),
       ...mapMutations({
+        setOverlay: VuexMutation.SET_OVERLAY,
         closeDialog: VuexMutation.CLOSE_DIALOG,
         unsetEditingBook: VuexMutation.UNSET_EDITING_BOOK,
         setFiles: VuexMutation.SET_FILES,
@@ -60,11 +61,13 @@
         this.unsetEditingBook();
       },
       async register() {
+        this.setOverlay(true);
         this.registerBook().then(() => {
           this.closeDialog();
           this.setFiles([]);
           this.unsetEditingBook();
         });
+        this.setOverlay(false);
       },
     },
   })

@@ -38,6 +38,7 @@ export interface State {
   search: string;
   editingBook: Book;
   files: File[];
+  overlay: boolean;
 }
 
 export interface OnixTextContent {

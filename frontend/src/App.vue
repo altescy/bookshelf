@@ -24,6 +24,14 @@
       <BookRegistrationDialog v-if="dialogType === 'register'"/>
       <BookEditDialog v-if="dialogType === 'edit'"/>
     </v-dialog>
+
+    <v-overlay v-model="overlay">
+      <v-progress-circular
+        indeterminate
+        :size="50"
+        color="white"
+      ></v-progress-circular>
+    </v-overlay>
   </v-app>
 </template>
 
@@ -49,7 +57,7 @@ export default Vue.extend({
   },
 
   computed: {
-    ...mapState(['dialog', 'dialogType', 'globalAlertMessage']),
+    ...mapState(['dialog', 'dialogType', 'overlay']),
   },
 
   methods: {

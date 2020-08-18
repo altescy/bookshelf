@@ -87,6 +87,7 @@
         deleteEditingBook: VuexAction.DELETE_EDITING_BOOK,
       }),
       ...mapMutations({
+        setOverlay: VuexMutation.SET_OVERLAY,
         closeDialog: VuexMutation.CLOSE_DIALOG,
         setFiles: VuexMutation.SET_FILES,
         setEditingBook: VuexMutation.SET_EDITING_BOOK,
@@ -98,21 +99,23 @@
         this.unsetEditingBook();
       },
       async update() {
+        this.setOverlay(true);
         this.updateBook().then(() => {
           this.setFiles([]);
         }, () => {
-          console.error('failed to delete book')
+          console.error('failed to delete book');
         });
+        this.setOverlay(false);
       },
       async deleteBook() {
+        this.deleteDialog = false;
+        this.setOverlay(true);
         this.deleteEditingBook().then(() => {
-          this.deleteDialog = false;
           this.closeDialog();
           this.setFiles([]);
           this.unsetEditingBook();
-        }, () => {
-          this.deleteDialog = false;
         })
+        this.setOverlay(false);
       },
     },
   })
