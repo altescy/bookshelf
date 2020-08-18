@@ -294,12 +294,6 @@ export default new Vuex.Store({
         if (response.status === 200) {
           commit(VuexMutation.UPDATE_BOOK, response.data);
           commit(VuexMutation.SET_EDITING_BOOK, response.data);
-          const msg: Model.AlertMessage = {
-            id: 0,
-            type: 'success',
-            message: 'successfully updated',
-          };
-          commit(VuexMutation.SET_ALERT_MESSAGE, msg);
         } else {
           throw response.data.err || 'unexpected error';
         }
