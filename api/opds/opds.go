@@ -47,7 +47,7 @@ type Author struct {
 
 type Summary struct {
 	Type string `xml:"type,attr"`
-	Text string `xml:",innerxml"`
+	Text string `xml:",chardata"`
 }
 
 func BuildFeed(id, title, href string, entries []Entry) *Feed {
