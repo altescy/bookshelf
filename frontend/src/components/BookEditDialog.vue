@@ -102,20 +102,23 @@
         this.setOverlay(true);
         this.updateBook().then(() => {
           this.setFiles([]);
+          this.setOverlay(false);
         }, () => {
-          console.error('failed to delete book');
-        });
+          console.error('failed to update book');
         this.setOverlay(false);
+        });
       },
       async deleteBook() {
         this.deleteDialog = false;
         this.setOverlay(true);
         this.deleteEditingBook().then(() => {
+          this.setOverlay(false);
           this.closeDialog();
           this.setFiles([]);
           this.unsetEditingBook();
-        })
-        this.setOverlay(false);
+        }, () => {
+          this.setOverlay(false);
+        });
       },
     },
   })

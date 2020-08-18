@@ -25,7 +25,7 @@
       <BookEditDialog v-if="dialogType === 'edit'"/>
     </v-dialog>
 
-    <v-overlay v-model="overlay" :z-index="1000">
+    <v-overlay :value="overlay" :z-index="1000">
       <v-progress-circular
         indeterminate
         :size="50"

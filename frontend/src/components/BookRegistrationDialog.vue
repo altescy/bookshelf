@@ -63,11 +63,13 @@
       async register() {
         this.setOverlay(true);
         this.registerBook().then(() => {
+          this.setOverlay(false);
           this.closeDialog();
           this.setFiles([]);
           this.unsetEditingBook();
+        }, () => {
+          this.setOverlay(false);
         });
-        this.setOverlay(false);
       },
     },
   })
