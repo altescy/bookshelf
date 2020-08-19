@@ -194,7 +194,7 @@ func main() {
 	router.GET("/api/books", h.GetBooks)
 	router.GET("/api/mime/:ext", h.GetMime)
 	router.GET("/api/mimes", h.GetMimes)
-	router.GET("/api/opds", h.GetOPDSFeed)
+	router.GET("/opds", h.GetOPDSFeed)
 	router.NotFound = http.FileServer(&assetfs.AssetFS{
 		Asset:     browser.Asset,
 		AssetDir:  browser.AssetDir,
