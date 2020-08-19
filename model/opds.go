@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/altescy/bookshelf/api/opds"
+	"github.com/altescy/bookshelf/opds"
 )
 
 func EntriesFromBooks(books *[]Book) []opds.Entry {

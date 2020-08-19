@@ -46,40 +46,26 @@ services:
     restart: always
 
   api:
-    build: ./api
+    build: .
     depends_on:
       - postgres
       - minio
       - waitfordb
       - waitforminio
+    ports:
+      - "${API_PORT}:80"
     environment:
       API_PORT                 : 80
-      API_ENDPOINT             : ${API_ENDPOINT}
       API_STORAGE_URL          : ${API_STORAGE_URL}
-      API_DB_HOST              : ${API_DB_HOST}
-      API_DB_PORT              : ${API_DB_PORT}
-      API_DB_USER              : ${API_DB_USER}
-      API_DB_PASSWORD          : ${API_DB_PASSWORD}
-      API_DB_NAME              : ${API_DB_NAME}
+      API_CREATE_NEW_STORAGE   : ${API_CREATE_NEW_STORAGE}
+      API_DB_URL               : ${API_DB_URL}
       API_AWS_ACCESS_KEY_ID    : ${API_AWS_ACCESS_KEY_ID}
       API_AWS_SECRET_ACCESS_KEY: ${API_AWS_SECRET_ACCESS_KEY}
       API_AWS_S3_REGION        : ${API_AWS_S3_REGION}
       API_AWS_S3_ENDPOINT_URL  : ${API_AWS_S3_ENDPOINT_URL}
-      API_AWS_S3_CREATE_BUCKET : ${API_AWS_S3_CREATE_BUCKET}
       API_ENABLE_CORS          : ${API_ENABLE_CORS}
       TZ                       : ${TZ}
     hostname: api
-    restart: always
-
-  nginx:
-    image: nginx:1.19-alpine
-    depends_on:
-      - api
-    ports:
-        - "${NGINX_PORT}:80"
-    volumes:
-        - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-        - ./frontend/dist:/public
     restart: always
 
 volumes:

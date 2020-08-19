@@ -1,6 +1,7 @@
 FROM golang:1.14-alpine as builder
 WORKDIR /build
 COPY . ./
+RUN apk --update add --no-cache build-base
 RUN CGO_ENABLED=off go build ./cmd/bookshelf
 
 

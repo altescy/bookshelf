@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/altescy/bookshelf/api/model"
+	"github.com/altescy/bookshelf/model"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -19,6 +19,7 @@ func (h *Handler) AddBook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 		CoverURL:    r.FormValue("CoverURL"),
 		Publisher:   r.FormValue("Publisher"),
 		PubDate:     r.FormValue("PubDate"),
+		Files:       []model.File{},
 	}
 
 	if err := model.AddBook(h.db, &book); err != nil {

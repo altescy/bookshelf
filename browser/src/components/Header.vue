@@ -31,7 +31,7 @@
 
     <v-spacer></v-spacer>
 
-    <a href="/opds">
+    <a href="/api/opds">
       <v-btn icon>
         <v-icon>mdi-rss</v-icon>
       </v-btn>

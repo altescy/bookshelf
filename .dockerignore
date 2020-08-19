@@ -1,0 +1,7 @@
+.git
+
+bin
+docker-compose.yml
+
+/browser/*
+!/browser/*.go
