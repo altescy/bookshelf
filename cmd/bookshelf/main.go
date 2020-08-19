@@ -44,7 +44,7 @@ func getEnv(key, def string) string {
 
 func createGormDB() *gorm.DB {
 	var (
-		dbURL = getEnv("DB_URL", "sqlite3:///tmp/bookshelf.db")
+		dbURL = getEnv("DB_URL", "")
 	)
 
 	parsedURL, err := url.Parse(dbURL)
@@ -72,14 +72,53 @@ func createGormDB() *gorm.DB {
 	return db
 }
 
-func createS3Storage(bucket, root string) *storage.S3Storage {
+func createStorage() storage.Storage {
 	var (
-		awsAccessKey    = getEnv("AWS_ACCESS_KEY_ID", "m1n10_4cce55")
-		awsSecretKey    = getEnv("AWS_SECRET_ACCESS_KEY", "m1n10_5ecret")
+		storageURL       = getEnv("STORAGE_URL", "")
+		createNewStorage = getEnv("CREATE_NEW_STORAGE", "")
+	)
+
+	var store storage.Storage
+
+	parsedURL, err := url.Parse(storageURL)
+	if err != nil {
+		log.Fatalf("cannot parse storage url: %v", err)
+	}
+
+	doCreateNewStorage := createNewStorage != ""
+
+	switch parsedURL.Scheme {
+	case "s3":
+		bucket := parsedURL.Host
+		root := parsedURL.Path
+		store = createS3Storage(bucket, root, doCreateNewStorage)
+	case "file":
+		root := parsedURL.Path
+		store = createFileSysteStorage(root, doCreateNewStorage)
+	default:
+		log.Fatalf("invalid storage url scheme: %s", parsedURL.Scheme)
+	}
+
+	return store
+}
+
+func createFileSysteStorage(root string, createNewStorage bool) *storage.FileSystemStorage {
+	perm := os.FileMode(0777)
+
+	if err := os.MkdirAll(root, perm); err != nil {
+		log.Fatalf("faield to create storage dir. err: %v", err)
+	}
+
+	return storage.NewFileSystemStorage(root, perm)
+}
+
+func createS3Storage(bucket, root string, createNewStorage bool) *storage.S3Storage {
+	var (
+		awsAccessKey    = getEnv("AWS_ACCESS_KEY_ID", "")
+		awsSecretKey    = getEnv("AWS_SECRET_ACCESS_KEY", "")
 		awsSessionToken = getEnv("AWS_SESSION_TOKEN", "")
-		s3Region        = getEnv("AWS_S3_REGION", "us-east-1")
-		s3EndpointURL   = getEnv("AWS_S3_ENDPOINT_URL", "http://localhost:9000")
-		createBucket    = getEnv("AWS_S3_CREATE_BUCKET", "")
+		s3Region        = getEnv("AWS_S3_REGION", "")
+		s3EndpointURL   = getEnv("AWS_S3_ENDPOINT_URL", "")
 	)
 
 	sess, err := session.NewSession(&aws.Config{
@@ -94,7 +133,7 @@ func createS3Storage(bucket, root string) *storage.S3Storage {
 	svc := s3.New(sess)
 
 	// create bucket if not exists
-	if createBucket != "" {
+	if createNewStorage {
 		log.Printf("[INFO] check bucket existence")
 		_, err := svc.HeadBucket(&s3.HeadBucketInput{
 			Bucket: aws.String(bucket),
@@ -130,39 +169,19 @@ func main() {
 	var (
 		port       = getEnv("PORT", "8080")
 		enableCors = getEnv("ENABLE_CORS", "")
-		storageURL = getEnv("STORAGE_URL", "s3://books")
 	)
+
+	isEnableCors := enableCors != ""
+	log.Printf("[INFO] enable CORS: %v", isEnableCors)
 
 	db := createGormDB()
 	defer db.Close()
 
 	autoMigrate(db)
 
-	var storage storage.Storage
-	surl, err := url.Parse(storageURL)
-	if err != nil {
-		log.Fatalf("cannot parse storage url: %v", err)
-	}
-	switch surl.Scheme {
-	case "s3":
-		bucket := surl.Host
-		root := surl.Path
-		storage = createS3Storage(bucket, root)
-	default:
-		log.Fatalf("invalid scheme: %s", surl.Scheme)
-	}
+	store := createStorage()
 
-	isEnableCors := enableCors != ""
-	log.Printf("[INFO] enable CORS: %v", isEnableCors)
-
-	fileServer := http.FileServer(&assetfs.AssetFS{
-		Asset:     browser.Asset,
-		AssetDir:  browser.AssetDir,
-		AssetInfo: browser.AssetInfo,
-		Prefix:    "/dist",
-		Fallback:  "index.html",
-	})
-	h := controller.NewHandler(db, storage, isEnableCors)
+	h := controller.NewHandler(db, store, isEnableCors)
 
 	router := httprouter.New()
 	router.POST("/api/book", h.AddBook)
@@ -176,7 +195,13 @@ func main() {
 	router.GET("/api/mime/:ext", h.GetMime)
 	router.GET("/api/mimes", h.GetMimes)
 	router.GET("/api/opds", h.GetOPDSFeed)
-	router.NotFound = fileServer
+	router.NotFound = http.FileServer(&assetfs.AssetFS{
+		Asset:     browser.Asset,
+		AssetDir:  browser.AssetDir,
+		AssetInfo: browser.AssetInfo,
+		Prefix:    "/dist",
+		Fallback:  "index.html",
+	})
 
 	addr := ":" + port
 	log.Printf("[INFO] start server %s", addr)
