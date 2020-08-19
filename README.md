@@ -4,6 +4,19 @@ Bookshelf
 eBook management system
 
 
+### Docker
+
+```
+$ docker pull altescy/bookshelf
+$ docker run \
+    -v `pwd`/data:/data \
+    -p 8080:8080 \
+    -e API_DB_URL=sqlite3:///data/bookshelf.db \
+    -e API_STORAGE_URL=file:///data/files \
+    altescy/bookshelf
+```
+
+
 ### docker-compose
 
 ```
