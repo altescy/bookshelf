@@ -1,6 +1,8 @@
 Bookshelf
 =========
 
+[![Actions Status](https://github.com/altescy/bookshelf/workflows/build/badge.svg)](https://github.com/altescy/bookshelf/actions?query=workflow%3Abuild)
+
 eBook management system
 
 
