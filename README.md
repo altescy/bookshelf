@@ -8,7 +8,7 @@ eBook management system
 
 ```
 $ docker pull altescy/bookshelf
-$ docker run \
+$ docker run -d \
     -v `pwd`/data:/data \
     -p 8080:8080 \
     -e API_DB_URL=sqlite3:///data/bookshelf.db \
