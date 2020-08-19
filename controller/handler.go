@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/altescy/bookshelf/api/storage"
+	"github.com/altescy/bookshelf/storage"
 	"github.com/jinzhu/gorm"
 )
 
@@ -18,15 +18,13 @@ const (
 type Handler struct {
 	db         *gorm.DB
 	storage    storage.Storage
-	endpoint   string
 	enableCors bool
 }
 
-func NewHandler(db *gorm.DB, storage storage.Storage, endoint string, enableCors bool) *Handler {
+func NewHandler(db *gorm.DB, storage storage.Storage, enableCors bool) *Handler {
 	return &Handler{
 		db:         db,
 		storage:    storage,
-		endpoint:   endoint,
 		enableCors: enableCors,
 	}
 }

@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 
-	"github.com/altescy/bookshelf/api/model"
+	"github.com/altescy/bookshelf/model"
 	"github.com/julienschmidt/httprouter"
 )
 

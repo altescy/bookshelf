@@ -7,12 +7,12 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/altescy/bookshelf/api/model"
-	"github.com/altescy/bookshelf/api/opds"
+	"github.com/altescy/bookshelf/model"
+	"github.com/altescy/bookshelf/opds"
 	"github.com/julienschmidt/httprouter"
 )
 
-const opdsTitle = "bookshelf - OPDS"
+const opdsTitle = "Bookshelf - OPDS"
 
 func (h *Handler) GetOPDSFeed(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	books, err := model.GetBooks(h.db)
@@ -21,15 +21,13 @@ func (h *Handler) GetOPDSFeed(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	// assume that opdsURL is http://[host][endpoint][basePath]/opds
-	opdsURL := "http://" + r.Host + h.endpoint + r.URL.Path
-	basePath := h.endpoint + r.URL.Path[:len(r.URL.Path)-5]
-	href := h.endpoint + r.URL.Path
+	opdsURL := "http://" + r.Host + r.URL.Path
+	href := r.URL.Path
 
 	for i, book := range *books {
 		for j, file := range book.Files {
 			alias, _ := model.GetMimeAlias(file.MimeType)
-			(*books)[i].Files[j].Link = fmt.Sprintf("%s/book/%d/file/%s", basePath, book.ID, alias)
+			(*books)[i].Files[j].Link = fmt.Sprintf("/api/book/%d/file/%s", book.ID, alias)
 		}
 	}
 

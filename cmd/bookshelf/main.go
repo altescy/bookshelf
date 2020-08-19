@@ -1,24 +1,26 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"time"
 
-	"github.com/altescy/bookshelf/api/controller"
-	"github.com/altescy/bookshelf/api/model"
-	"github.com/altescy/bookshelf/api/storage"
+	"github.com/altescy/bookshelf/browser"
+	"github.com/altescy/bookshelf/controller"
+	"github.com/altescy/bookshelf/model"
+	"github.com/altescy/bookshelf/storage"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/jinzhu/gorm"
 	"github.com/julienschmidt/httprouter"
 	_ "github.com/lib/pq"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func init() {
@@ -41,21 +43,10 @@ func getEnv(key, def string) string {
 }
 
 func createGormDB() *gorm.DB {
-	var (
-		dbhost = getEnv("DB_HOST", "127.0.0.1")
-		dbport = getEnv("DB_PORT", "5432")
-		dbuser = getEnv("DB_USER", "user")
-		dbpass = getEnv("DB_PASSWORD", "password")
-		dbname = getEnv("DB_NAME", "bookshelf")
-	)
+	// dsn := fmt.Sprintf(`postgres://%s@%s:%s/%s?sslmode=disable`, dbusrpass, dbhost, dbport, dbname)
+	// db, err := gorm.Open("postgres", dsn)
+	db, err := gorm.Open("sqlite3", "/tmp/bookshelf.db")
 
-	dbusrpass := dbuser
-	if dbpass != "" {
-		dbusrpass += ":" + dbpass
-	}
-
-	dsn := fmt.Sprintf(`postgres://%s@%s:%s/%s?sslmode=disable`, dbusrpass, dbhost, dbport, dbname)
-	db, err := gorm.Open("postgres", dsn)
 	if err != nil {
 		log.Fatalf("postgres connect failed. err: %s", err)
 	}
@@ -120,7 +111,6 @@ func autoMigrate(db *gorm.DB) {
 func main() {
 	var (
 		port       = getEnv("PORT", "8080")
-		endpoint   = getEnv("ENDPOINT", "")
 		enableCors = getEnv("ENABLE_CORS", "")
 		storageURL = getEnv("STORAGE_URL", "s3://books")
 	)
@@ -147,20 +137,28 @@ func main() {
 	isEnableCors := enableCors != ""
 	log.Printf("[INFO] enable CORS: %v", isEnableCors)
 
-	h := controller.NewHandler(db, storage, endpoint, isEnableCors)
+	fileServer := http.FileServer(&assetfs.AssetFS{
+		Asset:     browser.Asset,
+		AssetDir:  browser.AssetDir,
+		AssetInfo: browser.AssetInfo,
+		Prefix:    "/dist",
+		Fallback:  "index.html",
+	})
+	h := controller.NewHandler(db, storage, isEnableCors)
 
 	router := httprouter.New()
-	router.POST("/book", h.AddBook)
-	router.GET("/book/:bookid", h.GetBook)
-	router.PUT("/book/:bookid", h.UpdateBook)
-	router.DELETE("/book/:bookid", h.DeleteBook)
-	router.GET("/book/:bookid/file/:ext", h.DownloadFile)
-	router.DELETE("/book/:bookid/file/:ext", h.DeleteFile)
-	router.POST("/book/:bookid/files", h.UploadFiles)
-	router.GET("/books", h.GetBooks)
-	router.GET("/mime/:ext", h.GetMime)
-	router.GET("/mimes", h.GetMimes)
-	router.GET("/opds", h.GetOPDSFeed)
+	router.POST("/api/book", h.AddBook)
+	router.GET("/api/book/:bookid", h.GetBook)
+	router.PUT("/api/book/:bookid", h.UpdateBook)
+	router.DELETE("/api/book/:bookid", h.DeleteBook)
+	router.GET("/api/book/:bookid/file/:ext", h.DownloadFile)
+	router.DELETE("/api/book/:bookid/file/:ext", h.DeleteFile)
+	router.POST("/api/book/:bookid/files", h.UploadFiles)
+	router.GET("/api/books", h.GetBooks)
+	router.GET("/api/mime/:ext", h.GetMime)
+	router.GET("/api/mimes", h.GetMimes)
+	router.GET("/api/opds", h.GetOPDSFeed)
+	router.NotFound = fileServer
 
 	addr := ":" + port
 	log.Printf("[INFO] start server %s", addr)
