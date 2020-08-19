@@ -43,12 +43,30 @@ func getEnv(key, def string) string {
 }
 
 func createGormDB() *gorm.DB {
-	// dsn := fmt.Sprintf(`postgres://%s@%s:%s/%s?sslmode=disable`, dbusrpass, dbhost, dbport, dbname)
-	// db, err := gorm.Open("postgres", dsn)
-	db, err := gorm.Open("sqlite3", "/tmp/bookshelf.db")
+	var (
+		dbURL = getEnv("DB_URL", "sqlite3:///tmp/bookshelf.db")
+	)
 
+	parsedURL, err := url.Parse(dbURL)
 	if err != nil {
-		log.Fatalf("postgres connect failed. err: %s", err)
+		log.Fatalf("cannot parse database url. err: %v", err)
+	}
+
+	var db *gorm.DB
+
+	switch parsedURL.Scheme {
+	case "sqlite3":
+		db, err = gorm.Open("sqlite3", parsedURL.Path)
+		if err != nil {
+			log.Fatalf("sqlite3 connect failed. err: %s", err)
+		}
+	case "postgres":
+		db, err = gorm.Open("postgres", dbURL)
+		if err != nil {
+			log.Fatalf("postgres connect failed. err: %s", err)
+		}
+	default:
+		log.Fatal("invalid db")
 	}
 
 	return db
