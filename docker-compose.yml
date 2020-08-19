@@ -1,0 +1,73 @@
+version: '3'
+services:
+  waitfordb:
+    image: dadarek/wait-for-dependencies
+    depends_on:
+      - postgres
+    command: postgres:5432
+
+  waitforminio:
+    image: dadarek/wait-for-dependencies
+    depends_on:
+      - minio
+    command: minio:${MINIO_PORT}
+
+  postgres:
+    image: postgres:12.3-alpine
+    environment:
+      TZ                  : ${TZ}
+      POSTGRES_USER       : 'user'
+      POSTGRES_PASSWORD   : 'password'
+      POSTGRES_DB         : "bookshelf"
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d
+    hostname: postgres
+    restart: always
+
+  minio:
+    image: minio/minio
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+    command:
+      - "server"
+      - "--address"
+      - "${MINIO_HOST}:80"
+      - "/data"
+    ports:
+      - "${MINIO_PORT}:80"
+    volumes:
+      - minio:/data
+    hostname: minio
+    restart: always
+
+  api:
+    build: .
+    depends_on:
+      - postgres
+      - minio
+      - waitfordb
+      - waitforminio
+    ports:
+      - "${API_PORT}:80"
+    environment:
+      API_PORT                 : 80
+      API_STORAGE_URL          : ${API_STORAGE_URL}
+      API_CREATE_NEW_STORAGE   : ${API_CREATE_NEW_STORAGE}
+      API_DB_URL               : ${API_DB_URL}
+      API_AWS_ACCESS_KEY_ID    : ${API_AWS_ACCESS_KEY_ID}
+      API_AWS_SECRET_ACCESS_KEY: ${API_AWS_SECRET_ACCESS_KEY}
+      API_AWS_S3_REGION        : ${API_AWS_S3_REGION}
+      API_AWS_S3_ENDPOINT_URL  : ${API_AWS_S3_ENDPOINT_URL}
+      API_ENABLE_CORS          : ${API_ENABLE_CORS}
+      TZ                       : ${TZ}
+    hostname: api
+    restart: always
+
+volumes:
+  postgres:
+  minio:
