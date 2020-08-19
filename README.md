@@ -43,5 +43,6 @@ POSTGRES_PASSWORD=password
 POSTGRES_PORT=5432
 
 TZ=Asia/Tokyo
+EOF
 $ docker-compose up -d
 ```
