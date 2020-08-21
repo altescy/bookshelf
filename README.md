@@ -3,6 +3,7 @@ Bookshelf
 
 [![Actions Status](https://github.com/altescy/bookshelf/workflows/build/badge.svg)](https://github.com/altescy/bookshelf/actions?query=workflow%3Abuild)
 [![License](https://img.shields.io/github/license/altescy/bookshelf)](https://github.com/altescy/bookshelf/blob/master/LICENSE)
+[![Release](https://img.shields.io/github/v/release/altescy/bookshelf)](https://github.com/altescy/bookshelf/releases)
 
 eBook management system
 
