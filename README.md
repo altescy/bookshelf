@@ -7,6 +7,12 @@ Bookshelf
 
 eBook management system
 
+### Usage
+
+```
+$ go get github.com/altescy/bookshelf
+$ API_DB_URL=sqlite3:///path/to/bookshelf.db API_STORAGE_URL=file:///path/to/storage bookshelf
+```
 
 ### Docker
 
