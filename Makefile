@@ -3,7 +3,7 @@ PWD     := $(shell pwd)
 GOCMD   := go
 GOBUILD := $(GOCMD) build
 GOTEST  := $(GOCMD) test
-SOURCE  := $(PWD)/cmd/$(NAME)
+SOURCE  := $(PWD)
 TARGET  := $(PWD)/bin/$(NAME)
 
 $(TARGET):

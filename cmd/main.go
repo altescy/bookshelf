@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"log"
@@ -165,7 +165,7 @@ func autoMigrate(db *gorm.DB) {
 	}
 }
 
-func main() {
+func Main() {
 	var (
 		port       = getEnv("PORT", "8080")
 		enableCors = getEnv("ENABLE_CORS", "")
