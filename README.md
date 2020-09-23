@@ -57,9 +57,5 @@ POSTGRES_PORT=5432
 
 TZ=Asia/Tokyo
 EOF
-$ mkidr sql
-$ cat << EOF > sql/00_create_databse.sql
-create database if not exists bookshelf default character set utf8mb4;
-EOF
 $ docker-compose up -d
 ```
