@@ -16,7 +16,9 @@ This software also provides a OPDS feed which enables you to read your books via
 
 ```
 $ go get github.com/altescy/bookshelf
-$ BOOKSHELF_DB_URL=sqlite3:///path/to/bookshelf.db BOOKSHELF_STORAGE_URL=file:///path/to/storage bookshelf
+$ export BOOKSHELF_DB_URL=sqlite3:///`pwd`/data/bookshelf.db
+$ export BOOKSHELF_STORAGE_URL=file:///`pwd`/data/files
+$ bookshelf
 ```
 
 ### Docker
