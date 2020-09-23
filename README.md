@@ -7,7 +7,7 @@ Bookshelf
 
 `Bookshelf` is a simple ebook management web application.
 You can easily store and manage your books on a local or S3 compatible storage.
-This software also provides a OPDS feed which enables you to read your boooks via any OPDS readers on your computer or smartphone.
+This software also provides a OPDS feed which enables you to read your books via any OPDS readers on your computer or smartphone.
 
 ![Screenshot_2020-09-22 bookshelf](https://user-images.githubusercontent.com/16734471/93875665-5c6a5d00-fd10-11ea-81df-3a1735aa4547.png)
 
