@@ -25,6 +25,9 @@ var MimeAlias = map[string]string{
 }
 
 func GetMimeAlias(mime string) (string, error) {
+	// Extract a base mime from a given mime like "text/plain; charset=utf-8".
+	mime = strings.Split(mime, ";")[0]
+
 	alias := MimeAlias[mime]
 	if alias == "" {
 		return "", ErrMimeNotFound

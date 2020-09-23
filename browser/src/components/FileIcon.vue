@@ -44,7 +44,7 @@
   import Vue from 'vue';
   import {mapActions, mapState} from 'vuex';
   import * as VuexAction from '@/vuex/action_types';
-  import {MimeToAlias, MimeToColor} from '@/file'
+  import {getBaseMime, MimeToAlias, MimeToColor} from '@/file'
 
   export default Vue.extend({
     name: 'FileIcon',
@@ -66,11 +66,13 @@
         deleteFileAction: VuexAction.DELETE_FILE,
       }),
       getAlias(mime: string): string {
+        mime = getBaseMime(mime);
         const alias = MimeToAlias.get(mime);
         if(alias === undefined) throw 'unknown mime';
         return String(alias);
       },
       getColor(mime: string): string {
+        mime = getBaseMime(mime);
         const color = MimeToColor.get(mime);
         if(color === undefined) return "grey";
         return color
@@ -89,11 +91,10 @@
           this.deleteDialog = true;
         }
       },
-      deleteFile() {
-        this.deleteFileAction(this.file).then(() => {
-          this.deleteDialog = false;
-        }, () => {
-          this.deleteDialog = false;
+      async deleteFile() {
+        this.deleteDialog = false;
+        await this.deleteFileAction(this.file).catch(error => {
+          console.error("failed to delete file:", error);
         });
       },
     },

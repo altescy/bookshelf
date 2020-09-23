@@ -62,14 +62,16 @@
       },
       async register() {
         this.setOverlay(true);
-        this.registerBook().then(() => {
-          this.setOverlay(false);
+
+        await this.registerBook().then(() => {
           this.closeDialog();
           this.setFiles([]);
           this.unsetEditingBook();
-        }, () => {
-          this.setOverlay(false);
+        }).catch(error => {
+          console.error("failed to register book:", error)
         });
+
+        this.setOverlay(false);
       },
     },
   })

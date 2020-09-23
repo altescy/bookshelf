@@ -1,3 +1,7 @@
+export function getBaseMime(mime: string): string {
+  return mime.split(";")[0];
+}
+
 export const ExtToMime: Map<string, string> = new Map([
   [".azw3", "application/x-mobi8-ebook"],
   [".epub", "application/epub+zip"],

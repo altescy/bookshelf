@@ -53,7 +53,7 @@ function buildBookParams(book: Model.Book): URLSearchParams {
 function extractBookFromOpenBDResponse(response: AxiosResponse): Model.Book {
   const data = response.data[0];
   if (!data) {
-    throw 'invalid ISBN';
+    throw new Error('invalid ISBN');
   }
   const convertPubdate = (pubdate: string): string => {
     const year = pubdate.slice(0, 4);
@@ -85,29 +85,33 @@ function extractBookFromOpenBDResponse(response: AxiosResponse): Model.Book {
 
 function validateBook(book: Model.Book) {
   if (!book.Title) {
-    throw 'Title is empty.';
+    throw new Error('Title is empty.');
   }
 }
 
 function validateFiles(files: File[]) {
   const types: string[] = [];
   for (const file of files) {
-    if(types.includes(file.type)) throw 'file type conflict';
+    if(types.includes(file.type)) throw new Error('file type conflict');
     types.push(file.type);
   }
 }
 
-async function uploadFiles(commit: Function, bookID: number, files: File[]) {
+async function uploadFiles(commit: Function, bookID: number, files: File[]): Promise<AxiosResponse> {
   const formData = new FormData();
   for(const file of files) {
     formData.append("files", file);
   }
-  const filesResponse = await axios.post(API_ENDPOINT + '/book/' + bookID + '/files', formData);
-  if (filesResponse.status === 200) {
-    for(const result of filesResponse.data) {
+
+  const response = await axios.post(API_ENDPOINT + '/book/' + bookID + '/files', formData);
+
+  let isFailed = false;
+  if (response.status === 200) {
+    for(const result of response.data) {
       if (result.status === 'ok'){
         commit(VuexMutation.UPDATE_FILE, result.content)
       } else {
+        isFailed = true;
         const msg: Model.AlertMessage = {
           id: 0,
           type: "error",
@@ -117,8 +121,12 @@ async function uploadFiles(commit: Function, bookID: number, files: File[]) {
       }
     }
   } else {
-    throw filesResponse.data.err || 'unexpected error';
+    throw new Error(response.data.err || 'unexpected error');
   }
+
+  if (isFailed) throw new Error('failed to upload some files')
+
+  return response;
 }
 
 function handleAPIError(commit: Function, error: Error) {
@@ -223,8 +231,7 @@ export default new Vuex.Store({
     },
     async [VuexAction.AUTOCOMPLETE_EDITING_BOOK_BY_ISBN]({ commit }) {
       const isbn = this.state.editingBook.ISBN.replace(/-/g, '');
-      try {
-        const response = await axios.get(OPENBD_ENDPOINT + '/get?isbn=' + isbn)
+      await axios.get(OPENBD_ENDPOINT + '/get?isbn=' + isbn).then(response => {
         if (response.status === 200) {
           const completedBook = extractBookFromOpenBDResponse(response);
           const book = deepCopy(this.state.editingBook);
@@ -237,99 +244,89 @@ export default new Vuex.Store({
           book.Description = completedBook.Description;
           commit(VuexMutation.SET_EDITING_BOOK, book);
         } else {
-          throw 'failed to fetch book information'
+          throw new Error('failed to fetch book information');
         }
-      } catch (error) {
-        handleAPIError(commit, error);
-      }
+      }).catch(error => handleAPIError(commit, error));
     },
     async [VuexAction.FETCH_ALL_BOOKS]({ commit }) {
-      try {
-        const response = await axios.get(API_ENDPOINT + '/books');
+      await axios.get(API_ENDPOINT + '/books').then(response => {
         if (response.status === 200) {
           commit(VuexMutation.SET_BOOKS, response.data);
         } else {
-          throw response.data.err || 'unexpected error';
+          throw new Error(response.data.err || 'unexpected error');
         }
-      } catch (error) {
-        handleAPIError(commit, error);
-      }
+      }).catch(error => handleAPIError(commit, error));
     },
     async [VuexAction.REGISTER_EDITING_BOOK]({ commit }) {
+      const book = this.state.editingBook;
+      const files = this.state.files;
+
       try {
-        const book = this.state.editingBook;
         validateBook(book);
-
-        const files = this.state.files;
         validateFiles(files);
-
-        // register book entry
-        const params = buildBookParams(book);
-        const bookResponse = await axios.post(API_ENDPOINT + '/book', params);
-        if (bookResponse.status === 200) {
-          commit(VuexMutation.ADD_BOOK, bookResponse.data);
-        } else {
-          throw bookResponse.data.err || 'unexpected error';
-        }
-
-        // upload files
-        const bookID = bookResponse.data.ID;
-        await uploadFiles(commit, bookID, files);
       } catch (error) {
         handleAPIError(commit, error);
       }
+
+      const params = buildBookParams(book);
+      await axios.post(API_ENDPOINT + '/book', params).then(response => {
+        if (response.status === 200) {
+          commit(VuexMutation.ADD_BOOK, response.data);
+        } else {
+          throw new Error(response.data.err || 'unexpected error');
+        }
+        return response;
+      }).then(response => {
+        const bookID = response.data.ID;
+        return uploadFiles(commit, bookID, files);
+      }).catch(error => handleAPIError(commit, error));
     },
     async [VuexAction.UPDATE_BOOK]({ commit }) {
+      const book = this.state.editingBook;
+      const files = this.state.files;
+
       try {
-        const book = this.state.editingBook;
         validateBook(book);
-
-        const files = this.state.files;
         validateFiles(files);
-
-        await uploadFiles(commit, book.ID, files);
-
-        const params = buildBookParams(this.state.editingBook);
-        const response = await axios.put(API_ENDPOINT + '/book/' + book.ID, params);
-        if (response.status === 200) {
-          commit(VuexMutation.UPDATE_BOOK, response.data);
-          commit(VuexMutation.SET_EDITING_BOOK, response.data);
-        } else {
-          throw response.data.err || 'unexpected error';
-        }
       } catch (error) {
         handleAPIError(commit, error);
       }
+
+      const updateParams = buildBookParams(this.state.editingBook);
+      await Promise.all([
+        uploadFiles(commit, book.ID, files),
+        axios.put(API_ENDPOINT + '/book/' + book.ID, updateParams),
+      ]).then(([_uploadFilesResponse, updateBookResponse]) => { // eslint-disable-line
+        if (updateBookResponse.status === 200) {
+          commit(VuexMutation.UPDATE_BOOK, updateBookResponse.data);
+          commit(VuexMutation.SET_EDITING_BOOK, updateBookResponse.data);
+        } else {
+          throw new Error(updateBookResponse.data.err || 'unexpected error');
+        }
+      }).catch(error => handleAPIError(commit, error));
     },
     async [VuexAction.DELETE_EDITING_BOOK]({ commit }) {
-      try {
-        const book = this.state.editingBook;
-        const response = await axios.delete(API_ENDPOINT + '/book/' + book.ID);
+      const book = this.state.editingBook;
+      await axios.delete(API_ENDPOINT + '/book/' + book.ID).then(response => {
         if (response.status === 200) {
           commit(VuexMutation.DELETE_BOOK_BY_ID, this.state.editingBook.ID);
         } else {
-          throw response.data.err || 'unexpected error';
+          throw new Error(response.data.err || 'unexpected error');
         }
 
-      } catch (error) {
-        handleAPIError(commit, error);
-      }
+      }).catch(error => handleAPIError(commit, error));
     },
     async [VuexAction.FETCH_MIMES]({ commit }) {
-      try {
-        const response = await axios.get(API_ENDPOINT + '/mimes');
+      await axios.get(API_ENDPOINT + '/mimes').then(response => {
         if (response.status === 200) {
           commit(VuexMutation.SET_MIMES, response.data);
         } else {
-          throw response.data.err || 'unexpected error';
+          throw new Error(response.data.err || 'unexpected error');
         }
-      } catch (error) {
-        handleAPIError(commit, error);
-      }
+      }).catch(error => handleAPIError(commit, error));
     },
     async [VuexAction.DELETE_FILE]({ commit }, file: Model.BookFile) {
-      try {
-        const response = await axios.delete(API_ENDPOINT + '/book/' + file.BookID + '/file/' + MimeToAlias.get(file.MimeType));
+      await axios.delete(API_ENDPOINT + '/book/' + file.BookID + '/file/' + MimeToAlias.get(file.MimeType)).then(response => {
         if (response.status === 200) {
           commit(VuexMutation.DELEFTE_FILE_BY_ID, file.ID);
           const msg: Model.AlertMessage = {
@@ -339,11 +336,9 @@ export default new Vuex.Store({
           };
           commit(VuexMutation.SET_ALERT_MESSAGE, msg);
         } else {
-          throw response.data.err || 'unexpected error';
+          throw new Error(response.data.err || 'unexpected error');
         }
-      } catch (error) {
-        handleAPIError(commit, error);
-      }
+      }).catch(error => handleAPIError(commit, error));
     },
   },
   modules: {

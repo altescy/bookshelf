@@ -100,25 +100,28 @@
       },
       async update() {
         this.setOverlay(true);
-        this.updateBook().then(() => {
+
+        await this.updateBook().then(() => {
           this.setFiles([]);
-          this.setOverlay(false);
-        }, () => {
+        }).catch(() => {
           console.error('failed to update book');
-        this.setOverlay(false);
         });
+
+        this.setOverlay(false);
       },
       async deleteBook() {
         this.deleteDialog = false;
         this.setOverlay(true);
-        this.deleteEditingBook().then(() => {
-          this.setOverlay(false);
+
+        await this.deleteEditingBook().then(() => {
           this.closeDialog();
           this.setFiles([]);
           this.unsetEditingBook();
-        }, () => {
-          this.setOverlay(false);
+        }).catch(error => {
+          console.error('failed to delete book:', error)
         });
+
+        this.setOverlay(false);
       },
     },
   })

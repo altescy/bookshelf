@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -129,6 +130,7 @@ func (h *Handler) UploadFiles(w http.ResponseWriter, r *http.Request, ps httprou
 				"content": err.Error(),
 			}
 			results = append(results, result)
+			log.Printf("[ERROR] %+v", err)
 			continue
 		}
 
@@ -141,6 +143,7 @@ func (h *Handler) UploadFiles(w http.ResponseWriter, r *http.Request, ps httprou
 				"content": err.Error(),
 			}
 			results = append(results, result)
+			log.Printf("[ERROR] %+v", err)
 			continue
 		}
 		file.Path = model.GenerateFilePath(bookID, mimeAlias)
@@ -154,6 +157,7 @@ func (h *Handler) UploadFiles(w http.ResponseWriter, r *http.Request, ps httprou
 				"content": err.Error(),
 			}
 			results = append(results, result)
+			log.Printf("[ERROR] %+v", err)
 			continue
 		}
 
@@ -166,6 +170,7 @@ func (h *Handler) UploadFiles(w http.ResponseWriter, r *http.Request, ps httprou
 				"content": err.Error(),
 			}
 			results = append(results, result)
+			log.Printf("[ERROR] %+v", err)
 			continue
 		}
 
@@ -178,6 +183,7 @@ func (h *Handler) UploadFiles(w http.ResponseWriter, r *http.Request, ps httprou
 				"content": err.Error(),
 			}
 			results = append(results, result)
+			log.Printf("[ERROR] %+v", err)
 			continue
 		}
 
