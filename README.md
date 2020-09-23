@@ -16,7 +16,7 @@ This software also provides a OPDS feed which enables you to read your books via
 
 ```
 $ go get github.com/altescy/bookshelf
-$ API_DB_URL=sqlite3:///path/to/bookshelf.db API_STORAGE_URL=file:///path/to/storage bookshelf
+$ BOOKSHELF_DB_URL=sqlite3:///path/to/bookshelf.db BOOKSHELF_STORAGE_URL=file:///path/to/storage bookshelf
 ```
 
 ### Docker
@@ -26,8 +26,8 @@ $ docker pull altescy/bookshelf
 $ docker run -d \
     -v `pwd`/data:/data \
     -p 8080:8080 \
-    -e API_DB_URL=sqlite3:///data/bookshelf.db \
-    -e API_STORAGE_URL=file:///data/files \
+    -e BOOKSHELF_DB_URL=sqlite3:///data/bookshelf.db \
+    -e BOOKSHELF_STORAGE_URL=file:///data/files \
     altescy/bookshelf
 ```
 
@@ -36,15 +36,15 @@ $ docker run -d \
 
 ```
 $ cat << EOF > .env
-API_PORT=80
-API_ENABLE_CORS=1
-API_DB_URL=postgres://user:password@postgres:5432/bookshelf?sslmode=disable
-API_STORAGE_URL=s3://books
-API_CREATE_NEW_STORAGE=1
-API_AWS_ACCESS_KEY_ID=minio_access
-API_AWS_SECRET_ACCESS_KEY=minio_secret
-API_AWS_S3_REGION=us-east-1
-API_AWS_S3_ENDPOINT_URL=http://minio
+BOOKSHELF_PORT=80
+BOOKSHELF_ENABLE_CORS=
+BOOKSHELF_DB_URL=postgres://user:password@postgres:5432/bookshelf?sslmode=disable
+BOOKSHELF_STORAGE_URL=s3://books
+BOOKSHELF_CREATE_NEW_STORAGE=1
+BOOKSHELF_AWS_ACCESS_KEY_ID=minio_access
+BOOKSHELF_AWS_SECRET_ACCESS_KEY=minio_secret
+BOOKSHELF_AWS_S3_REGION=us-east-1
+BOOKSHELF_AWS_S3_ENDPOINT_URL=http://minio
 
 MINIO_ACCESS_KEY=minio_access
 MINIO_SECRET_KEY=minio_secret

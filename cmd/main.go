@@ -23,6 +23,9 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+// EnvPrefix is a prefix for environment variables.
+const EnvPrefix = "BOOKSHELF_"
+
 func init() {
 	var err error
 
@@ -36,7 +39,7 @@ func init() {
 }
 
 func getEnv(key, def string) string {
-	if v, ok := os.LookupEnv("API_" + key); ok {
+	if v, ok := os.LookupEnv(EnvPrefix + key); ok {
 		return v
 	}
 	return def

@@ -53,17 +53,17 @@ services:
       - waitfordb
       - waitforminio
     ports:
-      - "${API_PORT}:80"
+      - "${BOOKSHELF_PORT}:80"
     environment:
-      API_PORT                 : 80
-      API_STORAGE_URL          : ${API_STORAGE_URL}
-      API_CREATE_NEW_STORAGE   : ${API_CREATE_NEW_STORAGE}
-      API_DB_URL               : ${API_DB_URL}
-      API_AWS_ACCESS_KEY_ID    : ${API_AWS_ACCESS_KEY_ID}
-      API_AWS_SECRET_ACCESS_KEY: ${API_AWS_SECRET_ACCESS_KEY}
-      API_AWS_S3_REGION        : ${API_AWS_S3_REGION}
-      API_AWS_S3_ENDPOINT_URL  : ${API_AWS_S3_ENDPOINT_URL}
-      API_ENABLE_CORS          : ${API_ENABLE_CORS}
+      BOOKSHELF_PORT                 : 80
+      BOOKSHELF_STORAGE_URL          : ${BOOKSHELF_STORAGE_URL}
+      BOOKSHELF_CREATE_NEW_STORAGE   : ${BOOKSHELF_CREATE_NEW_STORAGE}
+      BOOKSHELF_DB_URL               : ${BOOKSHELF_DB_URL}
+      BOOKSHELF_AWS_ACCESS_KEY_ID    : ${BOOKSHELF_AWS_ACCESS_KEY_ID}
+      BOOKSHELF_AWS_SECRET_ACCESS_KEY: ${BOOKSHELF_AWS_SECRET_ACCESS_KEY}
+      BOOKSHELF_AWS_S3_REGION        : ${BOOKSHELF_AWS_S3_REGION}
+      BOOKSHELF_AWS_S3_ENDPOINT_URL  : ${BOOKSHELF_AWS_S3_ENDPOINT_URL}
+      BOOKSHELF_ENABLE_CORS          : ${BOOKSHELF_ENABLE_CORS}
       TZ                       : ${TZ}
     hostname: api
     restart: always
