@@ -6,7 +6,7 @@ RUN CGO_ENABLED=off go build .
 
 
 FROM alpine:latest
-RUN apk --update add --no-cache tzdata libpq
+RUN apk --update add --no-cache tzdata
 WORKDIR /app
 COPY --from=builder /build/bookshelf /app/bookshelf
 CMD /app/bookshelf
