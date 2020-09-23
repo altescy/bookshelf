@@ -25,9 +25,6 @@ var MimeAlias = map[string]string{
 }
 
 func GetMimeAlias(mime string) (string, error) {
-	// Extract a base mime from a given mime like "text/plain; charset=utf-8".
-	mime = strings.Split(mime, ";")[0]
-
 	alias := MimeAlias[mime]
 	if alias == "" {
 		return "", ErrMimeNotFound
@@ -65,17 +62,21 @@ func MimeByExt(ext string) (string, error) {
 func MimeByFilename(filename string) (string, error) {
 	ext := strings.ToLower(filepath.Ext(filename))
 
-	mimeType := mime.TypeByExtension(ext)
-	if mimeType != "" {
-		return mimeType, nil
-	}
-
 	mimeType, ok := extToMime[ext]
 	if ok {
 		return mimeType, nil
 	}
 
-	return "", ErrInvalidExt
+	mimeType = mime.TypeByExtension(ext)
+	if mimeType == "" {
+		return "", ErrInvalidExt
+	}
+	// The mimeType returned by TypeByExtension may contain
+	// some arguments like "text/plain; charset=utf-8". But
+	// in this statement, we ignore such arguments.
+	mimeType = strings.Split(mimeType, ";")[0]
+
+	return mimeType, nil
 }
 
 func copyMimes(m map[string]string) map[string]string {

@@ -4,7 +4,7 @@ import axios, {AxiosResponse} from 'axios';
 import * as Model from '@/model';
 import * as VuexMutation from '@/vuex/mutation_types';
 import * as VuexAction from '@/vuex/action_types';
-import {MimeToAlias} from '@/file';
+import {getBaseMime, MimeToAlias} from '@/file';
 import {deepCopy} from '@/utils';
 
 Vue.use(Vuex)
@@ -326,15 +326,10 @@ export default new Vuex.Store({
       }).catch(error => handleAPIError(commit, error));
     },
     async [VuexAction.DELETE_FILE]({ commit }, file: Model.BookFile) {
-      await axios.delete(API_ENDPOINT + '/book/' + file.BookID + '/file/' + MimeToAlias.get(file.MimeType)).then(response => {
+      const mime = MimeToAlias.get(getBaseMime(file.MimeType));
+      await axios.delete(API_ENDPOINT + '/book/' + file.BookID + '/file/' + mime).then(response => {
         if (response.status === 200) {
           commit(VuexMutation.DELEFTE_FILE_BY_ID, file.ID);
-          const msg: Model.AlertMessage = {
-            id: 0,
-            type: 'success',
-            message: 'successfully deleted : ' + MimeToAlias.get(file.MimeType),
-          };
-          commit(VuexMutation.SET_ALERT_MESSAGE, msg);
         } else {
           throw new Error(response.data.err || 'unexpected error');
         }
