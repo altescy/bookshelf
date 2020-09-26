@@ -5,6 +5,8 @@ Bookshelf
 [![License](https://img.shields.io/github/license/altescy/bookshelf)](https://github.com/altescy/bookshelf/blob/master/LICENSE)
 [![Release](https://img.shields.io/github/v/release/altescy/bookshelf)](https://github.com/altescy/bookshelf/releases)
 
+[Blog post (Japanese)](https://altescy.jp/posts/works/bookshelf/)
+
 `Bookshelf` is a simple ebook management web application.
 You can easily store and manage your books on a local or S3 compatible storage.
 This software also provides a OPDS feed which enables you to read your books via any OPDS readers on your computer or smartphone.
