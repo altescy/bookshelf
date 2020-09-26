@@ -102,7 +102,7 @@ func distCssChunkVendors6829e0eeCss() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "dist/css/chunk-vendors.6829e0ee.css", size: 386275, mode: os.FileMode(436), modTime: time.Unix(1600836657, 0)}
+	info := bindataFileInfo{name: "dist/css/chunk-vendors.6829e0ee.css", size: 386275, mode: os.FileMode(436), modTime: time.Unix(1601094614, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -122,7 +122,7 @@ func distFaviconIco() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "dist/favicon.ico", size: 17542, mode: os.FileMode(436), modTime: time.Unix(1600836657, 0)}
+	info := bindataFileInfo{name: "dist/favicon.ico", size: 17542, mode: os.FileMode(436), modTime: time.Unix(1601094614, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -142,7 +142,7 @@ func distIndexHtml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "dist/index.html", size: 995, mode: os.FileMode(436), modTime: time.Unix(1600836657, 0)}
+	info := bindataFileInfo{name: "dist/index.html", size: 995, mode: os.FileMode(436), modTime: time.Unix(1601094614, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -162,7 +162,7 @@ func distJsAboutC20368e6Js() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "dist/js/about.c20368e6.js", size: 455, mode: os.FileMode(436), modTime: time.Unix(1600836657, 0)}
+	info := bindataFileInfo{name: "dist/js/about.c20368e6.js", size: 455, mode: os.FileMode(436), modTime: time.Unix(1601094614, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -182,7 +182,7 @@ func distJsAboutC20368e6JsMap() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "dist/js/about.c20368e6.js.map", size: 1350, mode: os.FileMode(436), modTime: time.Unix(1600836657, 0)}
+	info := bindataFileInfo{name: "dist/js/about.c20368e6.js.map", size: 1350, mode: os.FileMode(436), modTime: time.Unix(1601094614, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -202,7 +202,7 @@ func distJsAppA8f3da70Js() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "dist/js/app.a8f3da70.js", size: 27290, mode: os.FileMode(436), modTime: time.Unix(1600836657, 0)}
+	info := bindataFileInfo{name: "dist/js/app.a8f3da70.js", size: 27290, mode: os.FileMode(436), modTime: time.Unix(1601094614, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -222,7 +222,7 @@ func distJsAppA8f3da70JsMap() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "dist/js/app.a8f3da70.js.map", size: 89288, mode: os.FileMode(436), modTime: time.Unix(1600836657, 0)}
+	info := bindataFileInfo{name: "dist/js/app.a8f3da70.js.map", size: 89288, mode: os.FileMode(436), modTime: time.Unix(1601094614, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -242,7 +242,7 @@ func distJsChunkVendorsE0d769bbJs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "dist/js/chunk-vendors.e0d769bb.js", size: 380026, mode: os.FileMode(436), modTime: time.Unix(1600836657, 0)}
+	info := bindataFileInfo{name: "dist/js/chunk-vendors.e0d769bb.js", size: 380026, mode: os.FileMode(436), modTime: time.Unix(1601094614, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -262,7 +262,7 @@ func distJsChunkVendorsE0d769bbJsMap() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "dist/js/chunk-vendors.e0d769bb.js.map", size: 1538672, mode: os.FileMode(436), modTime: time.Unix(1600836657, 0)}
+	info := bindataFileInfo{name: "dist/js/chunk-vendors.e0d769bb.js.map", size: 1538672, mode: os.FileMode(436), modTime: time.Unix(1601094614, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
