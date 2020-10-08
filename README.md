@@ -39,6 +39,8 @@ $ docker run -d \
 ### docker-compose
 
 ```
+$ git clone https://github.com/altescy/bookshelf.git
+$ cd bookshelf
 $ cat << EOF > .env
 BOOKSHELF_PORT=80
 BOOKSHELF_ENABLE_CORS=
