@@ -53,7 +53,7 @@ function buildBookParams(book: Model.Book): URLSearchParams {
 function extractBookFromOpenBDResponse(response: AxiosResponse): Model.Book {
   const data = response.data[0];
   if (!data) {
-    throw new Error('invalid ISBN');
+    throw new Error('ISBN not found');
   }
   const convertPubdate = (pubdate: string): string => {
     const year = pubdate.slice(0, 4);
